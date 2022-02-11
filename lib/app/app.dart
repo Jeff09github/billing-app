@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 
+import '../presentation/resources/color_manager.dart';
+
 class MyApp extends StatefulWidget {
   const MyApp._internal();
 
-  static const MyApp instance =  MyApp._internal();
+  static const MyApp instance = MyApp._internal();
 
   factory MyApp() => instance;
 
@@ -14,6 +16,11 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
-    return Container();
+    return MaterialApp(
+      home: Scaffold(
+        backgroundColor: ColorManager.primary,
+        body: Container(),
+      ),
+    );
   }
 }
