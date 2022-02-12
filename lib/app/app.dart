@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:maaa/presentation/resources/route_manager.dart';
 
-import '../presentation/resources/color_manager.dart';
+import '../presentation/resources/theme_manager.dart';
 
 class MyApp extends StatefulWidget {
   const MyApp._internal();
@@ -17,10 +18,10 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: Scaffold(
-        backgroundColor: ColorManager.primary,
-        body: Container(),
-      ),
+      debugShowCheckedModeBanner: false,
+      onGenerateRoute: (settings) => RouteGenerator.getRoute(settings),
+      initialRoute: Routes.splashRoute,
+      theme: getApplicationTheme(),
     );
   }
 }

@@ -6,7 +6,7 @@ ThemeData getApplicationTheme() {
   return ThemeData(
     //Text Theme
     textTheme: TextTheme(
-      headline1: getBoldStyle(fontSize: FontSizeManager.s16),
+      headline1: getBoldStyle(fontSize: FontSizeManager.splashFontSize),
       bodyText1: getRegularStyle(fontSize: FontSizeManager.s14),
     ),
   );
