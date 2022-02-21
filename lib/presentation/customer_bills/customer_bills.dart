@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../resources/color_manager.dart';
+
 class CustomerBillsView extends StatefulWidget {
   const CustomerBillsView({Key? key}) : super(key: key);
 
@@ -10,6 +12,8 @@ class CustomerBillsView extends StatefulWidget {
 class _CustomerBillsViewState extends State<CustomerBillsView> {
   @override
   Widget build(BuildContext context) {
-    return Container();
+    return Scaffold(
+      backgroundColor: ColorManager.primary,
+    );
   }
 }
