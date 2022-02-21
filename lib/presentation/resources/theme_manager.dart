@@ -23,5 +23,18 @@ ThemeData getApplicationTheme() {
       bodyText1: getRegularStyle(
           fontSize: FontSizeManager.s14, color: ColorManager.secondary),
     ),
+    //Appbar Theme
+    appBarTheme: AppBarTheme(
+      color: ColorManager.primary,
+      elevation: 0.0,
+      iconTheme: const IconThemeData(
+        color: Colors.white,
+        size: 35.0,
+      ),
+      // actionsIconTheme: const IconThemeData(
+      //   color: Colors.white,
+      //   size: 60.0,
+      // ),
+    ),
   );
 }

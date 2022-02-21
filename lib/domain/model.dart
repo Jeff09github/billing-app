@@ -1,16 +1,16 @@
-enum Type { water, electricity }
+enum BillType { water, electricity }
 
 class Customer {
   String id;
   String fullName;
   int currentBillAmount;
   int currentBillbalance;
-  Type type;
+  BillType billType;
   String createdAt;
   String updatedAt;
 
   Customer(this.id, this.fullName, this.currentBillAmount,
-      this.currentBillbalance, this.type, this.createdAt, this.updatedAt);
+      this.currentBillbalance, this.billType, this.createdAt, this.updatedAt);
 }
 
 class WaterCosumption {

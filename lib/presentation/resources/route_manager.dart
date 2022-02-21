@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:maaa/presentation/splash/splash_view.dart';
 
-
-import '../customer_bills/customer_bills.dart';
-import '../customer_history/customer_history.dart';
+import '../water_bills/customer_waterbill_history.dart';
 import '../selection/selection_view.dart';
+import '../water_bills/customers_waterbills.dart';
 
 class Routes {
   static const String splashRoute = '/';
   static const String selectionRoute = '/selection';
-  static const String customerBills = '/customerBills';
-  static const String customerHistory = '/customerHistory';
+  static const String customersWaterBills = '/customersWaterBills';
+  static const String customerWaterHistory = '/customerWaterHistory';
 }
 
 class RouteGenerator {
@@ -20,10 +19,12 @@ class RouteGenerator {
         return MaterialPageRoute(builder: (_) => const SplashView());
       case Routes.selectionRoute:
         return MaterialPageRoute(builder: (_) => const SelectionView());
-      case Routes.customerBills:
-        return MaterialPageRoute(builder: (_) => const CustomerBillsView());
-      case Routes.customerHistory:
-        return MaterialPageRoute(builder: (_) => const CustomerHistoryView());
+      case Routes.customersWaterBills:
+        return MaterialPageRoute(
+            builder: (_) => const CustomersWaterBillsView());
+      case Routes.customerWaterHistory:
+        return MaterialPageRoute(
+            builder: (_) => const CustomerWaterBillHistoryView());
       default:
         return undefinedRoute();
     }

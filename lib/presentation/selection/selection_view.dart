@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:maaa/domain/model.dart';
 import 'package:maaa/presentation/resources/color_manager.dart';
+
+import '../resources/route_manager.dart';
 
 class SelectionView extends StatefulWidget {
   const SelectionView({Key? key}) : super(key: key);
@@ -21,19 +24,29 @@ class _SelectionViewState extends State<SelectionView> {
           children: [
             _texttButton(
               text: 'Water Billing',
-              onPressed: () {},
+              onPressed: () => goNext(BillType.water),
             ),
             const SizedBox(
               height: 24.0,
             ),
             _texttButton(
               text: 'Electricity Billing',
-              onPressed: () {},
+              onPressed: () => goNext(BillType.water),
             )
           ],
         ),
       ),
     );
+  }
+
+  void goNext(BillType billType) {
+    switch (billType) {
+      case BillType.water:
+        Navigator.pushNamed(context, Routes.customersWaterBills);
+        break;
+      case BillType.electricity:
+        break;
+    }
   }
 
   TextButton _texttButton(

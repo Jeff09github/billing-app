@@ -1,0 +1,1 @@
+enum Choose { addCustomer, createNewBill }
