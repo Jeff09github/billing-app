@@ -30,6 +30,8 @@ class _CustomersWaterBillsViewState extends State<CustomersWaterBillsView> {
   void dispose() {
     _fullNameIsValid.close();
     _cmIsValid.close();
+    _fullName.dispose();
+    _cm.dispose();
     super.dispose();
   }
 
