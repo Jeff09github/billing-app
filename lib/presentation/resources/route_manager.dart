@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:maaa/presentation/splash/splash_view.dart';
 
-import '../water_bills/customer_waterbill_history.dart';
+import '../water_bills/customer_waterbill_history/customer_waterbill_history.dart';
 import '../selection/selection_view.dart';
-import '../water_bills/customers_waterbills.dart';
+import '../water_bills/customers_waterbills/customers_waterbills.dart';
 
 class Routes {
   static const String splashRoute = '/';
