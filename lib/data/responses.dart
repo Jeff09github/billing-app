@@ -1,6 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
-
-import '../domain/model.dart';
+import '../presentation/resources/enum.dart';
 
 part 'responses.g.dart';
 

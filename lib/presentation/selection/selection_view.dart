@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:maaa/domain/model.dart';
 import 'package:maaa/presentation/resources/color_manager.dart';
 
+import '../resources/enum.dart';
 import '../resources/route_manager.dart';
 
 class SelectionView extends StatefulWidget {

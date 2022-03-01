@@ -1,4 +1,6 @@
-enum BillType { water, electricity }
+
+
+import '../presentation/resources/enum.dart';
 
 class Customer {
   String id;

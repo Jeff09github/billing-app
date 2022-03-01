@@ -2,6 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:maaa/presentation/resources/enum.dart';
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
+import 'package:sqflite/sqflite.dart';
 
 import '../../resources/color_manager.dart';
 
@@ -21,9 +24,21 @@ class _CustomersWaterBillsViewState extends State<CustomersWaterBillsView> {
 
   final _formKey = GlobalKey<FormState>();
 
+  late String databasePath;
+
   @override
   void initState() {
     super.initState();
+  }
+
+  Future<void> loadDatabase() async {
+    // print(temDirectory.path);
+    // final database = await openDatabase(
+    //   p.join(
+    //     await getDatabasesPath(),
+    //     'maaa_database.db',
+    //   ),
+    // );
   }
 
   @override
@@ -59,6 +74,12 @@ class _CustomersWaterBillsViewState extends State<CustomersWaterBillsView> {
             ],
           ),
         ],
+      ),
+      body: FutureBuilder(
+        future: loadDatabase(),
+        builder: (context, snapshot) {
+          return Container();
+        },
       ),
     );
   }
