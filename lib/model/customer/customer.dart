@@ -13,20 +13,33 @@ class CustomerField {
 
 @JsonSerializable()
 class Customer {
-  int id;
-  String fullName;
-  DateTime createdAt;
-  DateTime updatedAt;
+  final int? id;
+  final String fullName;
+  final DateTime createdAt;
+  final DateTime updatedAt;
 
-  Customer(
+  Customer({
     this.id,
-    this.fullName,
-    this.createdAt,
-    this.updatedAt,
-  );
+    required this.fullName,
+    required this.createdAt,
+    required this.updatedAt,
+  });
 
   factory Customer.fromJson(Map<String, dynamic> json) =>
       _$CustomerFromJson(json);
 
   Map<String, dynamic> toJson() => _$CustomerToJson(this);
+
+  Customer copy({
+    int? id,
+    String? fullName,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) =>
+      Customer(
+        id: id ?? this.id,
+        fullName: fullName ?? this.fullName,
+        createdAt: createdAt ?? this.createdAt,
+        updatedAt: updatedAt ?? this.updatedAt,
+      );
 }

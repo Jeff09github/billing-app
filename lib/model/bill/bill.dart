@@ -3,6 +3,22 @@ import 'package:maaa/presentation/resources/enum.dart';
 
 part 'bill.g.dart';
 
+const String tableBills = 'bills';
+
+class BillField {
+  static const String id = '_id';
+  static const String customerId = 'customerId';
+  static const String type = 'type';
+  static const String currentReading = 'currentReading';
+  static const String previousReading = 'previousReading';
+  static const String consumeCM = 'consumeCM';
+  static const String billAmount = 'billAmount';
+  static const String previousbalance = 'previousbalance';
+  static const String totalAmount = 'totalAmount';
+  static const String createdAt = 'createdAt';
+  static const String updatedAt = 'updatedAt';
+}
+
 @JsonSerializable()
 class Bill {
   String id;

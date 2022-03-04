@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:maaa/presentation/resources/enum.dart';
+import 'package:maaa/resources/maaa_database.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
@@ -29,10 +30,12 @@ class _CustomersWaterBillsViewState extends State<CustomersWaterBillsView> {
   @override
   void initState() {
     super.initState();
+    loadDatabase();
   }
 
   Future<void> loadDatabase() async {
-    // print(temDirectory.path);
+    final _db= MaaaDatabase.instance.database;
+
     // final database = await openDatabase(
     //   p.join(
     //     await getDatabasesPath(),
