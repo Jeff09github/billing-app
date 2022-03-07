@@ -5,7 +5,7 @@ part 'customer.g.dart';
 const String tableCustomers = 'customers';
 
 class CustomerField {
-  static const String id = '_id';
+  static const String id = 'id';
   static const String fullName = 'fullName';
   static const String createdAt = 'createdAt';
   static const String updatedAt = 'updatedAt';
@@ -16,13 +16,13 @@ class Customer {
   final int? id;
   final String fullName;
   final DateTime createdAt;
-  final DateTime updatedAt;
+  final DateTime? updatedAt;
 
   Customer({
     this.id,
     required this.fullName,
     required this.createdAt,
-    required this.updatedAt,
+    this.updatedAt,
   });
 
   factory Customer.fromJson(Map<String, dynamic> json) =>

@@ -6,7 +6,7 @@ part 'bill.g.dart';
 const String tableBills = 'bills';
 
 class BillField {
-  static const String id = '_id';
+  static const String id = 'id';
   static const String customerId = 'customerId';
   static const String type = 'type';
   static const String currentReading = 'currentReading';

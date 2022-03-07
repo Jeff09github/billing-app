@@ -7,6 +7,7 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 
+import '../../../model/customer/customer.dart';
 import '../../resources/color_manager.dart';
 
 class CustomersWaterBillsView extends StatefulWidget {
@@ -20,34 +21,24 @@ class CustomersWaterBillsView extends StatefulWidget {
 class _CustomersWaterBillsViewState extends State<CustomersWaterBillsView> {
   final TextEditingController _fullName = TextEditingController();
   final TextEditingController _cm = TextEditingController();
-  final StreamController<bool?> _fullNameIsValid = StreamController.broadcast();
-  final StreamController<bool?> _cmIsValid = StreamController.broadcast();
 
   final _formKey = GlobalKey<FormState>();
-
-  late String databasePath;
+  late MaaaDatabase _instance;
+  // late List<Customer> _customers;
 
   @override
   void initState() {
     super.initState();
-    loadDatabase();
   }
 
-  Future<void> loadDatabase() async {
-    final _db= MaaaDatabase.instance.database;
-
-    // final database = await openDatabase(
-    //   p.join(
-    //     await getDatabasesPath(),
-    //     'maaa_database.db',
-    //   ),
-    // );
+  Future<Database?> loadDatabase() async {
+    _instance = MaaaDatabase.instance;
+    await Future.delayed(const Duration(milliseconds: 1000));
+    return await _instance.database;
   }
 
   @override
   void dispose() {
-    _fullNameIsValid.close();
-    _cmIsValid.close();
     _fullName.dispose();
     _cm.dispose();
     super.dispose();
@@ -64,7 +55,7 @@ class _CustomersWaterBillsViewState extends State<CustomersWaterBillsView> {
               Icons.more_vert,
               size: 35.0,
             ),
-            onSelected: _onChoiceSelected,
+            onSelected: (Choose value) => _onChoiceSelected(value, context),
             itemBuilder: (BuildContext context) => <PopupMenuEntry<Choose>>[
               _buildPopupMenuItem(
                 text: "Add Customer",
@@ -78,10 +69,33 @@ class _CustomersWaterBillsViewState extends State<CustomersWaterBillsView> {
           ),
         ],
       ),
-      body: FutureBuilder(
+      body: FutureBuilder<Database?>(
         future: loadDatabase(),
         builder: (context, snapshot) {
-          return Container();
+          return snapshot.connectionState == ConnectionState.waiting
+              ? const Center(
+                  child: CircularProgressIndicator(
+                  color: Colors.white,
+                ))
+              //check database
+              : !snapshot.hasData
+                  ? Container()
+                  : FutureBuilder<List<Customer>?>(
+                      future: getAllCustomer(),
+                      builder: (context, snapshot) {
+                        return snapshot.connectionState ==
+                                ConnectionState.waiting
+                            ? const Center(
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                ),
+                              )
+                            : Text((snapshot.data != null &&
+                                    snapshot.data!.isNotEmpty)
+                                ? '${snapshot.data!.length}'
+                                : 'No customer data.');
+                      },
+                    );
         },
       ),
     );
@@ -97,7 +111,7 @@ class _CustomersWaterBillsViewState extends State<CustomersWaterBillsView> {
     );
   }
 
-  void _onChoiceSelected(Choose choose) {
+  void _onChoiceSelected(Choose choose, BuildContext context) {
     showModalBottomSheet<void>(
       isDismissible: false,
       isScrollControlled: true,
@@ -106,7 +120,7 @@ class _CustomersWaterBillsViewState extends State<CustomersWaterBillsView> {
       builder: (BuildContext context) {
         switch (choose) {
           case Choose.addCustomer:
-            return _getAddCustomerWidget();
+            return _getAddCustomerWidget(context);
           case Choose.createNewBill:
             return Container();
         }
@@ -114,7 +128,7 @@ class _CustomersWaterBillsViewState extends State<CustomersWaterBillsView> {
     );
   }
 
-  Widget _getAddCustomerWidget() {
+  Widget _getAddCustomerWidget(BuildContext context) {
     return Padding(
       padding: MediaQuery.of(context).viewInsets,
       child: Form(
@@ -124,34 +138,30 @@ class _CustomersWaterBillsViewState extends State<CustomersWaterBillsView> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              StreamBuilder<bool?>(
-                  stream: _fullNameIsValid.stream,
-                  builder: (context, snapshot) {
-                    return TextFormField(
-                      keyboardType: TextInputType.text,
-                      decoration: InputDecoration(
-                        labelText: 'Full Name',
-                        errorText: (snapshot.data ?? true) ? null : 'error',
-                      ),
-                      controller: _fullName,
-                      onChanged: (newValue) {
-                        isFullNameValid(newValue);
-                      },
-                    );
-                  }),
               TextFormField(
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(labelText: 'Current CM'),
-                controller: _cm,
-                onChanged: (newValue) {
-                  isCMValid(newValue);
-                },
+                keyboardType: TextInputType.text,
+                decoration: const InputDecoration(
+                  labelText: 'Full Name',
+                ),
+                controller: _fullName,
+                validator: isTextValid,
               ),
+              // TextFormField(
+              //   keyboardType: TextInputType.number,
+              //   decoration: const InputDecoration(
+              //     labelText: 'Current CM',
+              //   ),
+              //   controller: _cm,
+              //   validator: isCMValid,
+
+              // ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () async {
+                      await addCustomer(name: _fullName.text);
+                    },
                     child: const Text('ADD'),
                   ),
                   const SizedBox(
@@ -159,6 +169,8 @@ class _CustomersWaterBillsViewState extends State<CustomersWaterBillsView> {
                   ),
                   OutlinedButton(
                     onPressed: () {
+                      _fullName.clear();
+                      _cm.clear();
                       Navigator.pop(context);
                     },
                     child: const Text('Cancel'),
@@ -172,19 +184,28 @@ class _CustomersWaterBillsViewState extends State<CustomersWaterBillsView> {
     );
   }
 
-  void isFullNameValid(String value) {
-    if (value.isEmpty) {
-      _fullNameIsValid.add(false);
-    } else {
-      _fullNameIsValid.add(true);
-    }
+  String? isTextValid(String? value) {
+    return (value != null && value.isNotEmpty) ? null : 'Input your full name';
   }
 
-  void isCMValid(String value) {
-    if (value.isEmpty) {
-      _fullNameIsValid.add(false);
-    } else {
-      _fullNameIsValid.add(true);
+  String? isCMValid(String? value) {
+    return (value != null && value.length == 4)
+        ? null
+        : 'Input a correct reading with 4 characters. ';
+  }
+
+  Future<List<Customer>?> getAllCustomer() async {
+    await Future.delayed(const Duration(milliseconds: 1000));
+    return await _instance.getAllCustomer();
+  }
+
+  Future<void> addCustomer({required String name}) async {
+    print('adding customer....');
+    final result = _formKey.currentState?.validate();
+    if (result!) {
+      await Future.delayed(const Duration(milliseconds: 1000));
+      final customerResult = await _instance.addCustomer(fullName: name);
+      print(customerResult);
     }
   }
 }
