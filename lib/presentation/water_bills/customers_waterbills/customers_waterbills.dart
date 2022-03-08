@@ -3,12 +3,13 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:maaa/presentation/resources/enum.dart';
 import 'package:maaa/resources/maaa_database.dart';
-import 'package:path/path.dart' as p;
-import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 
 import '../../../model/customer/customer.dart';
+import '../../../model/reading/reading.dart';
 import '../../resources/color_manager.dart';
+
+enum FormType { addCustomer, addReading }
 
 class CustomersWaterBillsView extends StatefulWidget {
   const CustomersWaterBillsView({Key? key}) : super(key: key);
@@ -120,7 +121,15 @@ class _CustomersWaterBillsViewState extends State<CustomersWaterBillsView> {
       builder: (BuildContext context) {
         switch (choose) {
           case Choose.addCustomer:
-            return _getAddCustomerWidget(context);
+            return _buildAddWidget(
+              context: context,
+              formType: FormType.addCustomer,
+            );
+          case Choose.addReading:
+            return _buildAddWidget(
+              context: context,
+              formType: FormType.addReading,
+            );
           case Choose.createNewBill:
             return Container();
         }
@@ -128,7 +137,8 @@ class _CustomersWaterBillsViewState extends State<CustomersWaterBillsView> {
     );
   }
 
-  Widget _getAddCustomerWidget(BuildContext context) {
+  Widget _buildAddWidget(
+      {required BuildContext context, required FormType formType}) {
     return Padding(
       padding: MediaQuery.of(context).viewInsets,
       child: Form(
@@ -140,10 +150,12 @@ class _CustomersWaterBillsViewState extends State<CustomersWaterBillsView> {
             children: [
               TextFormField(
                 keyboardType: TextInputType.text,
-                decoration: const InputDecoration(
-                  labelText: 'Full Name',
+                decoration: InputDecoration(
+                  labelText: formType == FormType.addCustomer
+                      ? 'Full Name'
+                      : ' Reading',
                 ),
-                controller: _fullName,
+                controller: formType == FormType.addCustomer ? _fullName : _cm,
                 validator: isTextValid,
               ),
               // TextFormField(
@@ -184,6 +196,10 @@ class _CustomersWaterBillsViewState extends State<CustomersWaterBillsView> {
     );
   }
 
+  // Widget _buildCustomerList(){
+
+  // }
+
   String? isTextValid(String? value) {
     return (value != null && value.isNotEmpty) ? null : 'Input your full name';
   }
@@ -199,13 +215,28 @@ class _CustomersWaterBillsViewState extends State<CustomersWaterBillsView> {
     return await _instance.getAllCustomer();
   }
 
-  Future<void> addCustomer({required String name}) async {
-    print('adding customer....');
+  Future<Customer?> addCustomer({required String name}) async {
     final result = _formKey.currentState?.validate();
+    Customer? _customer;
     if (result!) {
       await Future.delayed(const Duration(milliseconds: 1000));
-      final customerResult = await _instance.addCustomer(fullName: name);
-      print(customerResult);
+      _customer = await _instance.addCustomer(fullName: name);
     }
+    return _customer;
+  }
+
+  Future<Reading?> addReading(
+      {required String reading, required int customerId}) async {
+    final result = _formKey.currentState?.validate();
+    Reading? _reading;
+    if (result!) {
+      await Future.delayed(const Duration(milliseconds: 1000));
+      _reading = await _instance.addReading(
+        reading: reading,
+        billType: BillType.water,
+        customerId: customerId,
+      );
+    }
+    return _reading;
   }
 }

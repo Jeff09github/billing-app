@@ -33,4 +33,18 @@ class Reading {
       _$ReadingFromJson(json);
 
   Map<String, dynamic> toJson() => _$ReadingToJson(this);
+
+  Reading copy(
+          {int? id,
+          int? customerId,
+          int? reading,
+          BillType? billType,
+          DateTime? createdAt}) =>
+      Reading(
+        id: id ?? this.id,
+        customerId: customerId ?? this.customerId,
+        reading: reading ?? this.reading,
+        billType: billType ?? this.billType,
+        createdAt: createdAt ?? this.createdAt,
+      );
 }

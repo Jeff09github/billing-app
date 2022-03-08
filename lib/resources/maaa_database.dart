@@ -1,4 +1,5 @@
 import 'package:maaa/model/customer/customer.dart';
+import 'package:maaa/presentation/resources/enum.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
@@ -78,8 +79,28 @@ class MaaaDatabase {
       final _customer = Customer(fullName: fullName, createdAt: DateTime.now());
       final _db = await instance.database;
       final id = await _db.insert(tableCustomers, _customer.toJson());
-      print('add customer success');
       return _customer.copy(id: id);
+    } catch (e) {
+      print('error: $e');
+      return null;
+    }
+  }
+
+  Future<Reading?> addReading(
+      {required String reading,
+      required BillType billType,
+      required int customerId}) async {
+    try {
+      final _reading = Reading(
+        billType: billType,
+        reading: int.parse(reading),
+        customerId: customerId,
+        createdAt: DateTime.now(),
+      );
+
+      final _db = await instance.database;
+      final id = await _db.insert(tableReadings, _reading.toJson());
+      return _reading.copy(id: id);
     } catch (e) {
       print('error: $e');
       return null;
