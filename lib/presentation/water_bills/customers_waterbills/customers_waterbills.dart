@@ -56,7 +56,8 @@ class _CustomersWaterBillsViewState extends State<CustomersWaterBillsView> {
               Icons.more_vert,
               size: 35.0,
             ),
-            onSelected: (Choose value) => _onChoiceSelected(value, context),
+            onSelected: (Choose value) =>
+                _onChoiceSelected(choose: value, context: context),
             itemBuilder: (BuildContext context) => <PopupMenuEntry<Choose>>[
               _buildPopupMenuItem(
                 text: "Add Customer",
@@ -91,10 +92,43 @@ class _CustomersWaterBillsViewState extends State<CustomersWaterBillsView> {
                                   color: Colors.white,
                                 ),
                               )
-                            : Text((snapshot.data != null &&
+                            : (snapshot.data != null &&
                                     snapshot.data!.isNotEmpty)
-                                ? '${snapshot.data!.length}'
-                                : 'No customer data.');
+                                ? DataTable(
+                                    columns: const <DataColumn>[
+                                      DataColumn(
+                                        label: Text('Customer'),
+                                      ),
+                                      DataColumn(
+                                        label: Text('New Reading'),
+                                      )
+                                    ],
+                                    rows: List<DataRow>.generate(
+                                      snapshot.data!.length,
+                                      (index) {
+                                        return DataRow(
+                                          cells: <DataCell>[
+                                            DataCell(
+                                              Text(snapshot
+                                                  .data![index].fullName),
+                                            ),
+                                            DataCell(
+                                              const Icon(
+                                                  Icons.add_circle_outline),
+                                              onTap: () {
+                                                _onChoiceSelected(
+                                                    choose: Choose.addReading,
+                                                    context: context,
+                                                    customer:
+                                                        snapshot.data![index]);
+                                              },
+                                            )
+                                          ],
+                                        );
+                                      },
+                                    ),
+                                  )
+                                : const Text('No customer data.');
                       },
                     );
         },
@@ -112,7 +146,10 @@ class _CustomersWaterBillsViewState extends State<CustomersWaterBillsView> {
     );
   }
 
-  void _onChoiceSelected(Choose choose, BuildContext context) {
+  void _onChoiceSelected(
+      {required Choose choose,
+      required BuildContext context,
+      Customer? customer}) {
     showModalBottomSheet<void>(
       isDismissible: false,
       isScrollControlled: true,
@@ -122,14 +159,11 @@ class _CustomersWaterBillsViewState extends State<CustomersWaterBillsView> {
         switch (choose) {
           case Choose.addCustomer:
             return _buildAddWidget(
-              context: context,
               formType: FormType.addCustomer,
             );
           case Choose.addReading:
             return _buildAddWidget(
-              context: context,
-              formType: FormType.addReading,
-            );
+                formType: FormType.addReading, customer: customer);
           case Choose.createNewBill:
             return Container();
         }
@@ -137,68 +171,84 @@ class _CustomersWaterBillsViewState extends State<CustomersWaterBillsView> {
     );
   }
 
-  Widget _buildAddWidget(
-      {required BuildContext context, required FormType formType}) {
-    return Padding(
-      padding: MediaQuery.of(context).viewInsets,
-      child: Form(
-        key: _formKey,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextFormField(
-                keyboardType: TextInputType.text,
-                decoration: InputDecoration(
-                  labelText: formType == FormType.addCustomer
-                      ? 'Full Name'
-                      : ' Reading',
-                ),
-                controller: formType == FormType.addCustomer ? _fullName : _cm,
-                validator: isTextValid,
-              ),
-              // TextFormField(
-              //   keyboardType: TextInputType.number,
-              //   decoration: const InputDecoration(
-              //     labelText: 'Current CM',
-              //   ),
-              //   controller: _cm,
-              //   validator: isCMValid,
+  Widget _buildAddWidget({required FormType formType, Customer? customer}) {
+    switch (formType) {
+      case FormType.addCustomer:
+        return _buildAddForm(
+          // context: context,
+          inputType: TextInputType.name,
+          label: 'Full Name',
+          controller: _fullName,
+          onAddTap: () async => await addCustomer(name: _fullName.text),
+          onCancelTap: () {
+            _fullName.clear();
+            Navigator.pop(context);
+          },
+        );
 
-              // ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ElevatedButton(
-                    onPressed: () async {
-                      await addCustomer(name: _fullName.text);
-                    },
-                    child: const Text('ADD'),
-                  ),
-                  const SizedBox(
-                    width: 12.0,
-                  ),
-                  OutlinedButton(
-                    onPressed: () {
-                      _fullName.clear();
-                      _cm.clear();
-                      Navigator.pop(context);
-                    },
-                    child: const Text('Cancel'),
-                  )
-                ],
-              )
-            ],
-          ),
-        ),
-      ),
-    );
+      case FormType.addReading:
+        return _buildAddForm(
+          // context: context,
+          inputType: TextInputType.number,
+          label: 'Enter New ${customer?.fullName} Reading',
+          controller: _cm,
+          onAddTap: () async =>
+              await addReading(reading: _cm.text, customerId: customer!.id!),
+          onCancelTap: () {
+            _cm.clear();
+            Navigator.pop(context);
+          },
+        );
+    }
   }
 
-  // Widget _buildCustomerList(){
-
-  // }
+  Widget _buildAddForm({
+    required TextInputType inputType,
+    required String label,
+    required TextEditingController controller,
+    required VoidCallback onAddTap,
+    required VoidCallback onCancelTap,
+  }) {
+    return Builder(builder: (context) {
+      return Padding(
+        padding: MediaQuery.of(context).viewInsets,
+        child: Form(
+          key: _formKey,
+          child: Padding(
+            padding:
+                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextFormField(
+                  keyboardType: inputType,
+                  decoration: InputDecoration(labelText: label),
+                  controller: controller,
+                  validator: isTextValid,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ElevatedButton(
+                      onPressed: onAddTap,
+                      child: const Text('ADD'),
+                    ),
+                    const SizedBox(
+                      width: 12.0,
+                    ),
+                    OutlinedButton(
+                      onPressed: onCancelTap,
+                      child: const Text('Cancel'),
+                    )
+                  ],
+                )
+              ],
+            ),
+          ),
+        ),
+      );
+    });
+  }
 
   String? isTextValid(String? value) {
     return (value != null && value.isNotEmpty) ? null : 'Input your full name';
