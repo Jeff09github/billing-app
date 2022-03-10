@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:maaa/presentation/resources/color_manager.dart';
+import 'package:maaa/resources/maaa_database.dart';
 
 import '../resources/route_manager.dart';
 
@@ -38,7 +39,7 @@ class _SplashViewState extends State<SplashView> with TickerProviderStateMixin {
     timer = Timer(const Duration(seconds: 8), _next);
   }
 
-  void _next() {
+  void _next() async {
     Navigator.pushReplacementNamed(context, Routes.selectionRoute);
   }
 

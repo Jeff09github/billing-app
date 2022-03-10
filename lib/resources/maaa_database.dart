@@ -49,7 +49,8 @@ class MaaaDatabase {
     _batch.execute('''
       CREATE TABLE $tableReadings(
         ${ReadingField.id} $_idType,
-        ${ReadingField.type} $_textType,
+        ${ReadingField.customerId} $_integerType,
+        ${ReadingField.billType} $_textType,
         ${ReadingField.reading} $_integerType,
         ${ReadingField.createdAt} $_textType
       )
@@ -101,6 +102,37 @@ class MaaaDatabase {
       final _db = await instance.database;
       final id = await _db.insert(tableReadings, _reading.toJson());
       return _reading.copy(id: id);
+    } catch (e) {
+      print('error: $e');
+      return null;
+    }
+  }
+
+  Future<List<Reading>?> getReadings(int customerId, BillType billType) async {
+    try {
+      final _db = await instance.database;
+      // final _result = await _db
+      //     .query(tableReadings, where: 'id  = ?', whereArgs: [customerId]);
+      final _result = await _db.rawQuery(
+          'SELECT * FROM $tableReadings WHERE ${ReadingField.id} = $customerId ORDER BY ${ReadingField.id} ASC');
+      print(_result);
+      return _result.map((e) => Reading.fromJson(e)).toList();
+    } catch (e) {
+      print('error: $e');
+      return null;
+    }
+  }
+
+  Future<List<Reading>?> getLastTwoReading(
+      int customerId, BillType billType) async {
+    try {
+      final _db = await instance.database;
+      // final _result = await _db
+      //     .query(tableReadings, where: 'id  = ?', whereArgs: [customerId]);
+      final _result = await _db.rawQuery(
+          'SELECT * FROM $tableReadings WHERE ${ReadingField.customerId} = $customerId ORDER BY ${ReadingField.id} DESC LIMIT 2');
+      print(_result);
+      return _result.map((e) => Reading.fromJson(e)).toList();
     } catch (e) {
       print('error: $e');
       return null;

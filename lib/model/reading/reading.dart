@@ -9,7 +9,7 @@ class ReadingField {
   static const String id = 'id';
   static const String customerId = 'customerId';
   static const String reading = 'reading';
-  static const String type = 'type';
+  static const String billType = 'billType';
   static const String createdAt = 'createdAt';
 }
 

@@ -1,13 +1,16 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:maaa/model/reading/reading.dart';
 import 'package:maaa/presentation/resources/enum.dart';
 import 'package:maaa/resources/maaa_database.dart';
 import 'package:sqflite/sqflite.dart';
 
 import '../../../model/customer/customer.dart';
-import '../../../model/reading/reading.dart';
 import '../../resources/color_manager.dart';
+import '../../resources/style_manager.dart';
+import 'bottom_sheet_widget.dart';
 
 enum FormType { addCustomer, addReading }
 
@@ -20,12 +23,11 @@ class CustomersWaterBillsView extends StatefulWidget {
 }
 
 class _CustomersWaterBillsViewState extends State<CustomersWaterBillsView> {
-  final TextEditingController _fullName = TextEditingController();
-  final TextEditingController _cm = TextEditingController();
+  // final TextEditingController _fullName = TextEditingController();
+  // final TextEditingController _cm = TextEditingController();
 
-  final _formKey = GlobalKey<FormState>();
+  // final _formKey = GlobalKey<FormState>();
   late MaaaDatabase _instance;
-  // late List<Customer> _customers;
 
   @override
   void initState() {
@@ -40,8 +42,6 @@ class _CustomersWaterBillsViewState extends State<CustomersWaterBillsView> {
 
   @override
   void dispose() {
-    _fullName.dispose();
-    _cm.dispose();
     super.dispose();
   }
 
@@ -94,38 +94,104 @@ class _CustomersWaterBillsViewState extends State<CustomersWaterBillsView> {
                               )
                             : (snapshot.data != null &&
                                     snapshot.data!.isNotEmpty)
-                                ? DataTable(
-                                    columns: const <DataColumn>[
-                                      DataColumn(
-                                        label: Text('Customer'),
+                                ? SingleChildScrollView(
+                                    child: Align(
+                                      alignment: Alignment.topCenter,
+                                      child: DataTable(
+                                        headingTextStyle: getBoldStyle(
+                                            color: Colors.white,
+                                            fontSize: 18.0),
+                                        dataTextStyle: getRegularStyle(
+                                            color: Colors.white,
+                                            fontSize: 14.0),
+                                        dividerThickness: 3.0,
+                                        border: TableBorder.all(
+                                            color: Colors.white),
+                                        columnSpacing: 8.0,
+                                        columns: const <DataColumn>[
+                                          DataColumn(
+                                            label: Text('Customer'),
+                                          ),
+                                          DataColumn(
+                                            label: Text('Previous Reading'),
+                                          ),
+                                          DataColumn(
+                                            label: Text('Current Reading'),
+                                          ),
+                                          DataColumn(
+                                            label: Text('New'),
+                                          )
+                                        ],
+                                        rows: List<DataRow>.generate(
+                                          snapshot.data!.length,
+                                          (index) {
+                                            return DataRow(
+                                              cells: <DataCell>[
+                                                DataCell(
+                                                  Text(snapshot
+                                                      .data![index].fullName),
+                                                ),
+                                                DataCell(
+                                                  FutureBuilder<List<Reading>?>(
+                                                    future: _instance
+                                                        .getLastTwoReading(
+                                                            snapshot
+                                                                .data![index]
+                                                                .id!,
+                                                            BillType.water),
+                                                    builder:
+                                                        (context, snapshot) {
+                                                      if (snapshot
+                                                              .connectionState ==
+                                                          ConnectionState
+                                                              .waiting) {
+                                                        return const CircularProgressIndicator();
+                                                      }
+                                                      return Text(
+                                                        '${snapshot.data![1].reading.toString()} - ${DateFormat.yMd().format(snapshot.data![1].createdAt)}',
+                                                      );
+                                                    },
+                                                  ),
+                                                ),
+                                                DataCell(
+                                                  FutureBuilder<List<Reading>?>(
+                                                    future: _instance
+                                                        .getLastTwoReading(
+                                                            snapshot
+                                                                .data![index]
+                                                                .id!,
+                                                            BillType.water),
+                                                    builder:
+                                                        (context, snapshot) {
+                                                      if (snapshot
+                                                              .connectionState ==
+                                                          ConnectionState
+                                                              .waiting) {
+                                                        return const CircularProgressIndicator();
+                                                      }
+                                                      return Text(
+                                                        '${snapshot.data![0].reading.toString()} - ${DateFormat.yMd().format(snapshot.data![0].createdAt)}',
+                                                      );
+                                                    },
+                                                  ),
+                                                ),
+                                                DataCell(
+                                                  const Icon(
+                                                      Icons.add_circle_outline),
+                                                  onTap: () {
+                                                    _onChoiceSelected(
+                                                        choose:
+                                                            Choose.addReading,
+                                                        context: context,
+                                                        customer: snapshot
+                                                            .data![index]);
+                                                  },
+                                                )
+                                              ],
+                                            );
+                                          },
+                                        ),
                                       ),
-                                      DataColumn(
-                                        label: Text('New Reading'),
-                                      )
-                                    ],
-                                    rows: List<DataRow>.generate(
-                                      snapshot.data!.length,
-                                      (index) {
-                                        return DataRow(
-                                          cells: <DataCell>[
-                                            DataCell(
-                                              Text(snapshot
-                                                  .data![index].fullName),
-                                            ),
-                                            DataCell(
-                                              const Icon(
-                                                  Icons.add_circle_outline),
-                                              onTap: () {
-                                                _onChoiceSelected(
-                                                    choose: Choose.addReading,
-                                                    context: context,
-                                                    customer:
-                                                        snapshot.data![index]);
-                                              },
-                                            )
-                                          ],
-                                        );
-                                      },
                                     ),
                                   )
                                 : const Text('No customer data.');
@@ -158,12 +224,20 @@ class _CustomersWaterBillsViewState extends State<CustomersWaterBillsView> {
       builder: (BuildContext context) {
         switch (choose) {
           case Choose.addCustomer:
-            return _buildAddWidget(
+            return BottomSheetWidget(
               formType: FormType.addCustomer,
+              setState: () {
+                setState(() {});
+              },
             );
           case Choose.addReading:
-            return _buildAddWidget(
-                formType: FormType.addReading, customer: customer);
+            return BottomSheetWidget(
+              formType: FormType.addReading,
+              customer: customer,
+              setState: () {
+                setState(() {});
+              },
+            );
           case Choose.createNewBill:
             return Container();
         }
@@ -171,122 +245,8 @@ class _CustomersWaterBillsViewState extends State<CustomersWaterBillsView> {
     );
   }
 
-  Widget _buildAddWidget({required FormType formType, Customer? customer}) {
-    switch (formType) {
-      case FormType.addCustomer:
-        return _buildAddForm(
-          // context: context,
-          inputType: TextInputType.name,
-          label: 'Full Name',
-          controller: _fullName,
-          onAddTap: () async => await addCustomer(name: _fullName.text),
-          onCancelTap: () {
-            _fullName.clear();
-            Navigator.pop(context);
-          },
-        );
-
-      case FormType.addReading:
-        return _buildAddForm(
-          // context: context,
-          inputType: TextInputType.number,
-          label: 'Enter New ${customer?.fullName} Reading',
-          controller: _cm,
-          onAddTap: () async =>
-              await addReading(reading: _cm.text, customerId: customer!.id!),
-          onCancelTap: () {
-            _cm.clear();
-            Navigator.pop(context);
-          },
-        );
-    }
-  }
-
-  Widget _buildAddForm({
-    required TextInputType inputType,
-    required String label,
-    required TextEditingController controller,
-    required VoidCallback onAddTap,
-    required VoidCallback onCancelTap,
-  }) {
-    return Builder(builder: (context) {
-      return Padding(
-        padding: MediaQuery.of(context).viewInsets,
-        child: Form(
-          key: _formKey,
-          child: Padding(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextFormField(
-                  keyboardType: inputType,
-                  decoration: InputDecoration(labelText: label),
-                  controller: controller,
-                  validator: isTextValid,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    ElevatedButton(
-                      onPressed: onAddTap,
-                      child: const Text('ADD'),
-                    ),
-                    const SizedBox(
-                      width: 12.0,
-                    ),
-                    OutlinedButton(
-                      onPressed: onCancelTap,
-                      child: const Text('Cancel'),
-                    )
-                  ],
-                )
-              ],
-            ),
-          ),
-        ),
-      );
-    });
-  }
-
-  String? isTextValid(String? value) {
-    return (value != null && value.isNotEmpty) ? null : 'Input your full name';
-  }
-
-  String? isCMValid(String? value) {
-    return (value != null && value.length == 4)
-        ? null
-        : 'Input a correct reading with 4 characters. ';
-  }
-
   Future<List<Customer>?> getAllCustomer() async {
     await Future.delayed(const Duration(milliseconds: 1000));
     return await _instance.getAllCustomer();
-  }
-
-  Future<Customer?> addCustomer({required String name}) async {
-    final result = _formKey.currentState?.validate();
-    Customer? _customer;
-    if (result!) {
-      await Future.delayed(const Duration(milliseconds: 1000));
-      _customer = await _instance.addCustomer(fullName: name);
-    }
-    return _customer;
-  }
-
-  Future<Reading?> addReading(
-      {required String reading, required int customerId}) async {
-    final result = _formKey.currentState?.validate();
-    Reading? _reading;
-    if (result!) {
-      await Future.delayed(const Duration(milliseconds: 1000));
-      _reading = await _instance.addReading(
-        reading: reading,
-        billType: BillType.water,
-        customerId: customerId,
-      );
-    }
-    return _reading;
   }
 }
