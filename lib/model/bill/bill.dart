@@ -8,6 +8,7 @@ const String tableBills = 'bills';
 class BillField {
   static const String id = 'id';
   static const String customerId = 'customerId';
+  static const String readingId = 'readingId';
   static const String type = 'type';
   static const String currentReading = 'currentReading';
   static const String previousReading = 'previousReading';
@@ -16,13 +17,13 @@ class BillField {
   static const String previousbalance = 'previousbalance';
   static const String totalAmount = 'totalAmount';
   static const String createdAt = 'createdAt';
-  static const String updatedAt = 'updatedAt';
 }
 
 @JsonSerializable()
 class Bill {
-  String id;
-  String customerId;
+  int? id;
+  int customerId;
+  int readingId;
   BillType type;
   int currentReading;
   int previousReading;
@@ -31,20 +32,19 @@ class Bill {
   int previousbalance;
   int totalAmount;
   DateTime createdAt;
-  DateTime updatedAt;
 
-  Bill(
+  Bill({
     this.id,
-    this.customerId,
-    this.type,
-    this.currentReading,
-    this.previousReading,
-    this.consumeCM,
-    this.billAmount,
-    this.previousbalance,
-    this.totalAmount,
-    this.createdAt,
-    this.updatedAt,
+    required this.customerId,
+    required this.readingId,
+    required this.type,
+    required this.currentReading,
+    required this.previousReading,
+    required this.consumeCM,
+    required this.billAmount,
+    required this.previousbalance,
+    required this.totalAmount,
+    required this.createdAt,}
   );
 
   factory Bill.fromJson(Map<String, dynamic> json) => _$BillFromJson(json);

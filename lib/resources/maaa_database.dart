@@ -60,6 +60,7 @@ class MaaaDatabase {
       CREATE TABLE $tableBills(
         ${BillField.id} $_idType,
         ${BillField.customerId} $_integerType,
+        ${BillField.readingId} $_integerType,
         ${BillField.type} $_textType,
         ${BillField.currentReading} $_textType,
         ${BillField.previousReading} $_textType,
@@ -67,8 +68,7 @@ class MaaaDatabase {
         ${BillField.billAmount} $_integerType,
         ${BillField.previousbalance} $_integerType,
         ${BillField.totalAmount} $_integerType,
-        ${BillField.createdAt} $_textType,
-        ${BillField.updatedAt} $_textTypeN
+        ${BillField.createdAt} $_textType
       )
     ''');
 
@@ -114,7 +114,7 @@ class MaaaDatabase {
       // final _result = await _db
       //     .query(tableReadings, where: 'id  = ?', whereArgs: [customerId]);
       final _result = await _db.rawQuery(
-          'SELECT * FROM $tableReadings WHERE ${ReadingField.id} = $customerId ORDER BY ${ReadingField.id} ASC');
+          'SELECT * FROM $tableReadings WHERE ${ReadingField.customerId} = $customerId ORDER BY ${ReadingField.id} ASC');
       print(_result);
       return _result.map((e) => Reading.fromJson(e)).toList();
     } catch (e) {
@@ -154,5 +154,36 @@ class MaaaDatabase {
     print('closing');
     final _db = await instance.database;
     await _db.close();
+  }
+
+  Future<Bill?> createBill({
+    required Customer customer,
+    required Reading currentReading,
+    required Reading previousReading,
+    int balance = 0,
+    required BillType billType,
+  }) async {
+    try {
+      final _db = await instance.database;
+      final _consumeCM = currentReading.reading - previousReading.reading;
+      final _billAmount = _consumeCM * 75;
+      final _totalAmount = _billAmount + balance;
+      final _bill = Bill(
+        customerId: customer.id!,
+        readingId: currentReading.id!,
+        type: billType,
+        currentReading: currentReading.reading,
+        previousReading: previousReading.reading,
+        consumeCM: _consumeCM,
+        billAmount: _billAmount,
+        previousbalance: balance,
+        totalAmount: _totalAmount,
+        createdAt: DateTime.now(),
+      );
+      print(_bill.totalAmount);
+      return null;
+    } catch (e) {
+      return null;
+    }
   }
 }

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:maaa/model/arguments/reading_history_args.dart';
 import 'package:maaa/model/reading/reading.dart';
 import 'package:maaa/presentation/resources/enum.dart';
 import 'package:maaa/resources/maaa_database.dart';
@@ -9,10 +10,11 @@ import 'package:sqflite/sqflite.dart';
 
 import '../../../model/customer/customer.dart';
 import '../../resources/color_manager.dart';
+import '../../resources/route_manager.dart';
 import '../../resources/style_manager.dart';
 import 'bottom_sheet_widget.dart';
 
-enum FormType { addCustomer, addReading }
+enum FormType { addCustomer, addReading, createBill }
 
 class CustomersWaterBillsView extends StatefulWidget {
   const CustomersWaterBillsView({Key? key}) : super(key: key);
@@ -128,9 +130,25 @@ class _CustomersWaterBillsViewState extends State<CustomersWaterBillsView> {
                                             return DataRow(
                                               cells: <DataCell>[
                                                 DataCell(
-                                                  Text(snapshot
-                                                      .data![index].fullName),
-                                                ),
+                                                    Text(
+                                                      snapshot.data![index]
+                                                          .fullName,
+                                                      style: const TextStyle(
+                                                          color: Colors.black,
+                                                          decoration:
+                                                              TextDecoration
+                                                                  .underline),
+                                                    ), onTap: () {
+                                                  Navigator.pushNamed(
+                                                      context,
+                                                      Routes
+                                                          .customerReadingHistory,
+                                                      arguments:
+                                                          ReadingHistoryArgs(
+                                                              snapshot
+                                                                  .data![index],
+                                                              BillType.water));
+                                                }),
                                                 DataCell(
                                                   FutureBuilder<List<Reading>?>(
                                                     future: _instance
@@ -147,9 +165,13 @@ class _CustomersWaterBillsViewState extends State<CustomersWaterBillsView> {
                                                               .waiting) {
                                                         return const CircularProgressIndicator();
                                                       }
-                                                      return Text(
-                                                        '${snapshot.data![1].reading.toString()} - ${DateFormat.yMd().format(snapshot.data![1].createdAt)}',
-                                                      );
+                                                      return snapshot.data!
+                                                                  .length <
+                                                              2
+                                                          ? const Text('')
+                                                          : Text(
+                                                              '${snapshot.data![1].reading.toString()} - ${DateFormat.yMd().format(snapshot.data![1].createdAt)}',
+                                                            );
                                                     },
                                                   ),
                                                 ),
@@ -169,9 +191,12 @@ class _CustomersWaterBillsViewState extends State<CustomersWaterBillsView> {
                                                               .waiting) {
                                                         return const CircularProgressIndicator();
                                                       }
-                                                      return Text(
-                                                        '${snapshot.data![0].reading.toString()} - ${DateFormat.yMd().format(snapshot.data![0].createdAt)}',
-                                                      );
+                                                      return snapshot
+                                                              .data!.isEmpty
+                                                          ? const Text('')
+                                                          : Text(
+                                                              '${snapshot.data![0].reading.toString()} - ${DateFormat.yMd().format(snapshot.data![0].createdAt)}',
+                                                            );
                                                     },
                                                   ),
                                                 ),
@@ -239,7 +264,10 @@ class _CustomersWaterBillsViewState extends State<CustomersWaterBillsView> {
               },
             );
           case Choose.createNewBill:
-            return Container();
+            return BottomSheetWidget(
+              formType: FormType.createBill,
+              setState: () {},
+            );
         }
       },
     );

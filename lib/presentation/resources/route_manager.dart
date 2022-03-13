@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:maaa/presentation/splash/splash_view.dart';
+import 'package:maaa/presentation/water_bills/customer_reading_history/customer_waterbill_history.dart';
 
-import '../water_bills/customer_waterbill_history/customer_waterbill_history.dart';
+import '../../model/arguments/reading_history_args.dart';
 import '../selection/selection_view.dart';
 import '../water_bills/customers_waterbills/customers_waterbills.dart';
 
@@ -9,7 +10,7 @@ class Routes {
   static const String splashRoute = '/';
   static const String selectionRoute = '/selection';
   static const String customersWaterBills = '/customersWaterBills';
-  static const String customerWaterHistory = '/customerWaterHistory';
+  static const String customerReadingHistory = '/customerReadingHistory';
 }
 
 class RouteGenerator {
@@ -22,9 +23,13 @@ class RouteGenerator {
       case Routes.customersWaterBills:
         return MaterialPageRoute(
             builder: (_) => const CustomersWaterBillsView());
-      case Routes.customerWaterHistory:
+      case Routes.customerReadingHistory:
+        final args = routeSettings.arguments as ReadingHistoryArgs;
         return MaterialPageRoute(
-            builder: (_) => const CustomerWaterBillHistoryView());
+            builder: (context) => ReadingHistoryView(
+                  customer: args.customer,
+                  billType: args.billType,
+                ));
       default:
         return undefinedRoute();
     }

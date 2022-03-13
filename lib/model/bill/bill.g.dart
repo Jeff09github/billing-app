@@ -7,22 +7,23 @@ part of 'bill.dart';
 // **************************************************************************
 
 Bill _$BillFromJson(Map<String, dynamic> json) => Bill(
-      json['id'] as String,
-      json['customerId'] as String,
-      $enumDecode(_$BillTypeEnumMap, json['type']),
-      json['currentReading'] as int,
-      json['previousReading'] as int,
-      json['consumeCM'] as int,
-      json['billAmount'] as int,
-      json['previousbalance'] as int,
-      json['totalAmount'] as int,
-      DateTime.parse(json['createdAt'] as String),
-      DateTime.parse(json['updatedAt'] as String),
+      id: json['id'] as int?,
+      customerId: json['customerId'] as int,
+      readingId: json['readingId'] as int,
+      type: $enumDecode(_$BillTypeEnumMap, json['type']),
+      currentReading: json['currentReading'] as int,
+      previousReading: json['previousReading'] as int,
+      consumeCM: json['consumeCM'] as int,
+      billAmount: json['billAmount'] as int,
+      previousbalance: json['previousbalance'] as int,
+      totalAmount: json['totalAmount'] as int,
+      createdAt: DateTime.parse(json['createdAt'] as String),
     );
 
 Map<String, dynamic> _$BillToJson(Bill instance) => <String, dynamic>{
       'id': instance.id,
       'customerId': instance.customerId,
+      'readingId': instance.readingId,
       'type': _$BillTypeEnumMap[instance.type],
       'currentReading': instance.currentReading,
       'previousReading': instance.previousReading,
@@ -31,7 +32,6 @@ Map<String, dynamic> _$BillToJson(Bill instance) => <String, dynamic>{
       'previousbalance': instance.previousbalance,
       'totalAmount': instance.totalAmount,
       'createdAt': instance.createdAt.toIso8601String(),
-      'updatedAt': instance.updatedAt.toIso8601String(),
     };
 
 const _$BillTypeEnumMap = {
