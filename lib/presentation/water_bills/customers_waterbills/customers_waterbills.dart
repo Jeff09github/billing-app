@@ -25,10 +25,7 @@ class CustomersWaterBillsView extends StatefulWidget {
 }
 
 class _CustomersWaterBillsViewState extends State<CustomersWaterBillsView> {
-  // final TextEditingController _fullName = TextEditingController();
-  // final TextEditingController _cm = TextEditingController();
 
-  // final _formKey = GlobalKey<FormState>();
   late MaaaDatabase _instance;
 
   @override
@@ -67,7 +64,7 @@ class _CustomersWaterBillsViewState extends State<CustomersWaterBillsView> {
               ),
               _buildPopupMenuItem(
                 text: "Create New Bill",
-                value: Choose.createNewBill,
+                value: Choose.createBills,
               ),
             ],
           ),
@@ -263,7 +260,7 @@ class _CustomersWaterBillsViewState extends State<CustomersWaterBillsView> {
                 setState(() {});
               },
             );
-          case Choose.createNewBill:
+          case Choose.createBills:
             return BottomSheetWidget(
               formType: FormType.createBill,
               setState: () {},

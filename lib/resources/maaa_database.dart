@@ -180,7 +180,8 @@ class MaaaDatabase {
         totalAmount: _totalAmount,
         createdAt: DateTime.now(),
       );
-      print(_bill.totalAmount);
+      final _id = await _db.insert(tableBills, _bill.toJson());
+
       return null;
     } catch (e) {
       return null;

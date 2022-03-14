@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:maaa/presentation/resources/color_manager.dart';
 import 'package:maaa/presentation/water_bills/customers_waterbills/customers_waterbills.dart';
 
+import '../../../model/bill/bill.dart';
 import '../../../model/customer/customer.dart';
 import '../../../model/reading/reading.dart';
 import '../../../resources/maaa_database.dart';
 import '../../resources/enum.dart';
+import '../../resources/style_manager.dart';
 
 class BottomSheetWidget extends StatefulWidget {
   // const BottomSheetWidget({Key? key}) : super(key: key);
@@ -18,7 +21,6 @@ class BottomSheetWidget extends StatefulWidget {
     this.customer,
     required this.setState,
   }) : super(key: key);
-
 
   @override
   State<BottomSheetWidget> createState() => _BottomSheetWidgetState();
@@ -51,6 +53,15 @@ class _BottomSheetWidgetState extends State<BottomSheetWidget> {
     );
 
     return _reading;
+  }
+
+  Future<Bill?> createBill({
+    required Customer customer,
+    required Reading currentReading,
+    required Reading previousReading,
+    required BillType billType,
+  }) async {
+    return await null;
   }
 
   String? isTextValid(String? value) {

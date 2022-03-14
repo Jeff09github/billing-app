@@ -6,6 +6,7 @@ import 'package:maaa/resources/maaa_database.dart';
 import '../../../model/customer/customer.dart';
 import '../../../model/reading/reading.dart';
 import '../../resources/color_manager.dart';
+import '../../resources/style_manager.dart';
 
 class ReadingHistoryView extends StatefulWidget {
   const ReadingHistoryView(
@@ -21,6 +22,64 @@ class ReadingHistoryView extends StatefulWidget {
 
 class _ReadingHistoryViewState extends State<ReadingHistoryView> {
   final _db = MaaaDatabase.instance;
+
+  void _onCreateTap({
+    required BuildContext context,
+    required Customer customer,
+    required Reading currentReading,
+    required Reading previousReading,
+  }) {
+    showModalBottomSheet<void>(
+      isDismissible: false,
+      isScrollControlled: true,
+      context: context,
+      clipBehavior: Clip.hardEdge,
+      builder: (BuildContext context) {
+        return Padding(
+          padding: MediaQuery.of(context).viewInsets,
+          child: Padding(
+            padding:
+                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Are you sure?',
+                  style:
+                      getBoldStyle(fontSize: 24.0, color: ColorManager.primary),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {
+                        _db.createBill(
+                          customer: customer,
+                          currentReading: currentReading,
+                          previousReading: previousReading,
+                          billType: BillType.water,
+                        );
+                      },
+                      child: const Text('OK'),
+                    ),
+                    const SizedBox(
+                      width: 12.0,
+                    ),
+                    OutlinedButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: const Text('CANCEL'),
+                    )
+                  ],
+                )
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -74,14 +133,14 @@ class _ReadingHistoryViewState extends State<ReadingHistoryView> {
                               )
                             : DataCell(
                                 const Text(
-                                  'Add',
+                                  'Create',
                                 ),
                                 onTap: () {
-                                  _db.createBill(
+                                  _onCreateTap(
+                                    context: context,
                                     customer: widget.customer,
                                     currentReading: snapshot.data![index],
                                     previousReading: snapshot.data![index - 1],
-                                    billType: BillType.water,
                                   );
                                 },
                               ),
