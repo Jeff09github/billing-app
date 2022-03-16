@@ -3,8 +3,10 @@ import 'package:intl/intl.dart';
 import 'package:maaa/presentation/resources/enum.dart';
 import 'package:maaa/resources/maaa_database.dart';
 
+import '../../../model/bill/bill.dart';
 import '../../../model/customer/customer.dart';
 import '../../../model/reading/reading.dart';
+import '../../../resources/bluetooth_thermal_printer.dart';
 import '../../resources/color_manager.dart';
 import '../../resources/style_manager.dart';
 
@@ -52,13 +54,15 @@ class _ReadingHistoryViewState extends State<ReadingHistoryView> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     ElevatedButton(
-                      onPressed: () {
-                        _db.createBill(
+                      onPressed: () async {
+                        await _db.createBill(
                           customer: customer,
                           currentReading: currentReading,
                           previousReading: previousReading,
                           billType: BillType.water,
                         );
+                        setState(() {});
+                        Navigator.pop(context);
                       },
                       child: const Text('OK'),
                     ),
@@ -97,52 +101,65 @@ class _ReadingHistoryViewState extends State<ReadingHistoryView> {
                     child: CircularProgressIndicator(color: Colors.white),
                   );
                 }
-                print(snapshot.data!.length);
                 return DataTable(
-                  columns: const <DataColumn>[
-                    DataColumn(
-                      label: Text('Date'),
-                    ),
-                    DataColumn(
-                      label: Text('Reading'),
-                    ),
-                    DataColumn(
-                      label: Text('Billing'),
-                    ),
+                  columns: <DataColumn>[
+                    _buildDataColumn(label: 'Date'),
+                    _buildDataColumn(label: 'Reading'),
+                    _buildDataColumn(label: 'Billing'),
                   ],
                   rows: List.generate(
                     snapshot.data!.length,
                     (index) => DataRow(
                       cells: <DataCell>[
-                        DataCell(
-                          Text(
-                            DateFormat.yMd()
-                                .format(snapshot.data![index].createdAt),
-                          ),
+                        _buildDataCellText(
+                          text: DateFormat.yMd()
+                              .format(snapshot.data![index].createdAt),
                         ),
-                        DataCell(
-                          Text(
-                            snapshot.data![index].reading.toString(),
-                          ),
+                        _buildDataCellText(
+                          text: snapshot.data![index].reading.toString(),
                         ),
                         index == 0
-                            ? const DataCell(
-                                Text(
-                                  '',
-                                ),
-                              )
+                            ? _buildDataCellText(text: '')
                             : DataCell(
-                                const Text(
-                                  'Create',
+                                FutureBuilder<Bill?>(
+                                  future: _db.getBill(
+                                      readingId: snapshot.data![index].id!),
+                                  builder: (context, billSnapshot) {
+                                    return billSnapshot.connectionState ==
+                                            ConnectionState.waiting
+                                        ? const CircularProgressIndicator()
+                                        : TextButton(
+                                            onPressed: billSnapshot.data == null
+                                                ? () {
+                                                    _onCreateTap(
+                                                      context: context,
+                                                      customer: widget.customer,
+                                                      currentReading:
+                                                          snapshot.data![index],
+                                                      previousReading: snapshot
+                                                          .data![index - 1],
+                                                    );
+                                                  }
+                                                : () {
+                                                    Navigator.push(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                        builder: (builder) =>
+                                                            const BluetoothThermalPrinter(),
+                                                      ),
+                                                    );
+                                                  },
+                                            child: Text(
+                                              billSnapshot.data == null
+                                                  ? 'Create'
+                                                  : 'View',
+                                              style: getRegularStyle(
+                                                  fontSize: 18.0,
+                                                  color: ColorManager.primary),
+                                            ),
+                                          );
+                                  },
                                 ),
-                                onTap: () {
-                                  _onCreateTap(
-                                    context: context,
-                                    customer: widget.customer,
-                                    currentReading: snapshot.data![index],
-                                    previousReading: snapshot.data![index - 1],
-                                  );
-                                },
                               ),
                       ],
                     ),
@@ -150,6 +167,24 @@ class _ReadingHistoryViewState extends State<ReadingHistoryView> {
                 );
               }),
         ),
+      ),
+    );
+  }
+
+  DataColumn _buildDataColumn({required String label}) {
+    return DataColumn(
+      label: Text(
+        label,
+        style: getBoldStyle(color: ColorManager.secondary, fontSize: 24.0),
+      ),
+    );
+  }
+
+  DataCell _buildDataCellText({required String text}) {
+    return DataCell(
+      Text(
+        text,
+        style: getRegularStyle(color: ColorManager.secondary, fontSize: 18.0),
       ),
     );
   }

@@ -65,7 +65,9 @@ class _BottomSheetWidgetState extends State<BottomSheetWidget> {
   }
 
   String? isTextValid(String? value) {
-    return (value != null && value.isNotEmpty) ? null : 'Input your full name';
+    return (value != null && value.trim().isNotEmpty)
+        ? null
+        : 'Input your full name';
   }
 
   String? isCMValid(String? value) {
@@ -108,8 +110,9 @@ class _BottomSheetWidgetState extends State<BottomSheetWidget> {
                       children: [
                         ElevatedButton(
                           onPressed: () async {
-                            final result = _formKey.currentState?.validate();
-                            if (result! &&
+                            final _result = _formKey.currentState?.validate();
+
+                            if (_result == true &&
                                 widget.formType == FormType.addCustomer) {
                               setState(() {
                                 _isLoading = true;
@@ -127,13 +130,13 @@ class _BottomSheetWidgetState extends State<BottomSheetWidget> {
                                   _isLoading = false;
                                 });
                               }
-                            } else {
+                            } else if (_result == true &&
+                                widget.formType == FormType.addReading) {
                               setState(() {
                                 _isLoading = true;
                               });
                               await Future.delayed(
                                   const Duration(milliseconds: 1000));
-
                               final result = await addReading(
                                   reading: _readingController.text,
                                   customerId: widget.customer!.id!);

@@ -31,7 +31,7 @@ class _SelectionViewState extends State<SelectionView> {
             ),
             _texttButton(
               text: 'Electricity Billing',
-              onPressed: () => goNext(BillType.water),
+              onPressed: (){},
             )
           ],
         ),

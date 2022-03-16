@@ -62,8 +62,8 @@ class MaaaDatabase {
         ${BillField.customerId} $_integerType,
         ${BillField.readingId} $_integerType,
         ${BillField.type} $_textType,
-        ${BillField.currentReading} $_textType,
-        ${BillField.previousReading} $_textType,
+        ${BillField.currentReading} $_integerType,
+        ${BillField.previousReading} $_integerType,
         ${BillField.consumeCM} $_integerType,
         ${BillField.billAmount} $_integerType,
         ${BillField.previousbalance} $_integerType,
@@ -150,12 +150,6 @@ class MaaaDatabase {
     }
   }
 
-  Future<void> close() async {
-    print('closing');
-    final _db = await instance.database;
-    await _db.close();
-  }
-
   Future<Bill?> createBill({
     required Customer customer,
     required Reading currentReading,
@@ -166,7 +160,7 @@ class MaaaDatabase {
     try {
       final _db = await instance.database;
       final _consumeCM = currentReading.reading - previousReading.reading;
-      final _billAmount = _consumeCM * 75;
+      final _billAmount = _consumeCM * 80;
       final _totalAmount = _billAmount + balance;
       final _bill = Bill(
         customerId: customer.id!,
@@ -181,10 +175,28 @@ class MaaaDatabase {
         createdAt: DateTime.now(),
       );
       final _id = await _db.insert(tableBills, _bill.toJson());
-
-      return null;
+      return _bill.copy(id: _id);
     } catch (e) {
       return null;
     }
+  }
+
+  Future<Bill?> getBill({required int readingId}) async {
+    try {
+      final _db = await instance.database;
+      final _result = await _db.rawQuery(
+          'SELECT * FROM $tableBills WHERE ${BillField.readingId} = $readingId');
+      print('Bill  =>>>  $_result');
+      return Bill.fromJson(_result[0]);
+    } catch (e) {
+      print(e);
+      return null;
+    }
+  }
+
+  Future<void> close() async {
+    print('closing');
+    final _db = await instance.database;
+    await _db.close();
   }
 }

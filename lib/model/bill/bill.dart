@@ -44,10 +44,36 @@ class Bill {
     required this.billAmount,
     required this.previousbalance,
     required this.totalAmount,
-    required this.createdAt,}
-  );
+    required this.createdAt,
+  });
 
   factory Bill.fromJson(Map<String, dynamic> json) => _$BillFromJson(json);
 
   Map<String, dynamic> toJson() => _$BillToJson(this);
+
+  Bill copy({
+    int? id,
+    int? customerId,
+    int? readingId,
+    BillType? type,
+    int? currentReading,
+    int? previousReading,
+    int? consumeCM,
+    int? billAmount,
+    int? previousbalance,
+    int? totalAmount,
+    DateTime? createdAt,
+  }) =>
+      Bill(
+          id: id ?? this.id,
+          customerId: this.customerId,
+          readingId: readingId ?? this.readingId,
+          type: type ?? this.type,
+          currentReading: currentReading ?? this.currentReading,
+          previousReading: previousReading ?? this.previousReading,
+          consumeCM: consumeCM ?? this.consumeCM,
+          billAmount: billAmount ?? this.billAmount,
+          previousbalance: previousbalance ?? this.previousbalance,
+          totalAmount: totalAmount ?? this.totalAmount,
+          createdAt: createdAt ?? this.createdAt);
 }

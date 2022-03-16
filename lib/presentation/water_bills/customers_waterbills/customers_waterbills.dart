@@ -25,7 +25,6 @@ class CustomersWaterBillsView extends StatefulWidget {
 }
 
 class _CustomersWaterBillsViewState extends State<CustomersWaterBillsView> {
-
   late MaaaDatabase _instance;
 
   @override
@@ -94,8 +93,8 @@ class _CustomersWaterBillsViewState extends State<CustomersWaterBillsView> {
                             : (snapshot.data != null &&
                                     snapshot.data!.isNotEmpty)
                                 ? SingleChildScrollView(
-                                    child: Align(
-                                      alignment: Alignment.topCenter,
+                                    child: SizedBox(
+                                      width: MediaQuery.of(context).size.width,
                                       child: DataTable(
                                         headingTextStyle: getBoldStyle(
                                             color: Colors.white,
@@ -106,20 +105,15 @@ class _CustomersWaterBillsViewState extends State<CustomersWaterBillsView> {
                                         dividerThickness: 3.0,
                                         border: TableBorder.all(
                                             color: Colors.white),
-                                        columnSpacing: 8.0,
-                                        columns: const <DataColumn>[
-                                          DataColumn(
-                                            label: Text('Customer'),
-                                          ),
-                                          DataColumn(
-                                            label: Text('Previous Reading'),
-                                          ),
-                                          DataColumn(
-                                            label: Text('Current Reading'),
-                                          ),
-                                          DataColumn(
-                                            label: Text('New'),
-                                          )
+                                        columnSpacing: 0.0,
+                                        horizontalMargin: 0.0,
+                                        columns: <DataColumn>[
+                                          _buildDataColumn(label: 'Customer'),
+                                          _buildDataColumn(
+                                              label: 'Previous Reading'),
+                                          _buildDataColumn(
+                                              label: 'Current Reading'),
+                                          _buildDataColumn(label: 'New'),
                                         ],
                                         rows: List<DataRow>.generate(
                                           snapshot.data!.length,
@@ -127,25 +121,32 @@ class _CustomersWaterBillsViewState extends State<CustomersWaterBillsView> {
                                             return DataRow(
                                               cells: <DataCell>[
                                                 DataCell(
-                                                    Text(
-                                                      snapshot.data![index]
-                                                          .fullName,
-                                                      style: const TextStyle(
-                                                          color: Colors.black,
-                                                          decoration:
-                                                              TextDecoration
-                                                                  .underline),
-                                                    ), onTap: () {
-                                                  Navigator.pushNamed(
-                                                      context,
-                                                      Routes
-                                                          .customerReadingHistory,
-                                                      arguments:
-                                                          ReadingHistoryArgs(
-                                                              snapshot
-                                                                  .data![index],
-                                                              BillType.water));
-                                                }),
+                                                  Align(
+                                                    alignment: Alignment.center,
+                                                    child: TextButton(
+                                                      onPressed: () {
+                                                        Navigator.pushNamed(
+                                                          context,
+                                                          Routes
+                                                              .customerReadingHistory,
+                                                          arguments:
+                                                              ReadingHistoryArgs(
+                                                                  snapshot.data![
+                                                                      index],
+                                                                  BillType
+                                                                      .water),
+                                                        );
+                                                      },
+                                                      child: Text(
+                                                        snapshot.data![index]
+                                                            .fullName,
+                                                        style: getRegularStyle(
+                                                            color: ColorManager
+                                                                .primary),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
                                                 DataCell(
                                                   FutureBuilder<List<Reading>?>(
                                                     future: _instance
@@ -166,8 +167,13 @@ class _CustomersWaterBillsViewState extends State<CustomersWaterBillsView> {
                                                                   .length <
                                                               2
                                                           ? const Text('')
-                                                          : Text(
-                                                              '${snapshot.data![1].reading.toString()} - ${DateFormat.yMd().format(snapshot.data![1].createdAt)}',
+                                                          : Align(
+                                                              alignment:
+                                                                  Alignment
+                                                                      .center,
+                                                              child: Text(
+                                                                '${snapshot.data![1].reading.toString()} - ${DateFormat.yMd().format(snapshot.data![1].createdAt)}',
+                                                              ),
                                                             );
                                                     },
                                                   ),
@@ -191,23 +197,38 @@ class _CustomersWaterBillsViewState extends State<CustomersWaterBillsView> {
                                                       return snapshot
                                                               .data!.isEmpty
                                                           ? const Text('')
-                                                          : Text(
-                                                              '${snapshot.data![0].reading.toString()} - ${DateFormat.yMd().format(snapshot.data![0].createdAt)}',
+                                                          : Align(
+                                                              alignment:
+                                                                  Alignment
+                                                                      .center,
+                                                              child: Text(
+                                                                '${snapshot.data![0].reading.toString()} - ${DateFormat.yMd().format(snapshot.data![0].createdAt)}',
+                                                              ),
                                                             );
                                                     },
                                                   ),
                                                 ),
                                                 DataCell(
-                                                  const Icon(
-                                                      Icons.add_circle_outline),
-                                                  onTap: () {
-                                                    _onChoiceSelected(
-                                                        choose:
-                                                            Choose.addReading,
-                                                        context: context,
-                                                        customer: snapshot
-                                                            .data![index]);
-                                                  },
+                                                  Align(
+                                                    alignment: Alignment.center,
+                                                    child: TextButton(
+                                                      onPressed: () {
+                                                        _onChoiceSelected(
+                                                            choose: Choose
+                                                                .addReading,
+                                                            context: context,
+                                                            customer: snapshot
+                                                                .data![index]);
+                                                      },
+                                                      child: Text(
+                                                        'CREATE',
+                                                        style: getRegularStyle(
+                                                          color: ColorManager
+                                                              .primary,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
                                                 )
                                               ],
                                             );
@@ -216,7 +237,15 @@ class _CustomersWaterBillsViewState extends State<CustomersWaterBillsView> {
                                       ),
                                     ),
                                   )
-                                : const Text('No customer data.');
+                                : Center(
+                                    child: Text(
+                                      'No customer data.',
+                                      style: getBoldStyle(
+                                        color: Colors.white,
+                                        fontSize: 36.0,
+                                      ),
+                                    ),
+                                  );
                       },
                     );
         },
@@ -231,6 +260,17 @@ class _CustomersWaterBillsViewState extends State<CustomersWaterBillsView> {
     return PopupMenuItem(
       child: Text(text),
       value: value,
+    );
+  }
+
+  DataColumn _buildDataColumn({required String label}) {
+    return DataColumn(
+      label: Expanded(
+        child: Text(
+          label,
+          textAlign: TextAlign.center,
+        ),
+      ),
     );
   }
 
