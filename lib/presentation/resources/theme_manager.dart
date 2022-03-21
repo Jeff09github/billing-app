@@ -26,7 +26,7 @@ ThemeData getApplicationTheme() {
       bodyText1: getRegularStyle(
           fontSize: FontSizeManager.s14, color: ColorManager.secondary),
       subtitle1: getRegularStyle(
-          fontSize: FontSizeManager.s14, color: ColorManager.secondary),
+          fontSize: FontSizeManager.s14, color: ColorManager.primary),
     ),
     //Appbar Theme
     appBarTheme: AppBarTheme(

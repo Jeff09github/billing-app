@@ -1,2 +1,2 @@
-enum Choose { addCustomer, addReading, createBills }
+enum Choose { addCustomer, addReading, payment, createBills }
 enum BillType { water, electricity }

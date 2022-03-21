@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:maaa/model/arguments/reading_history_args.dart';
 import 'package:maaa/presentation/resources/enum.dart';
+import 'package:maaa/presentation/resources/route_manager.dart';
 import 'package:maaa/resources/maaa_database.dart';
 
 import '../../../model/bill/bill.dart';
 import '../../../model/customer/customer.dart';
 import '../../../model/reading/reading.dart';
-import '../../../resources/bluetooth_thermal_printer.dart';
 import '../../resources/color_manager.dart';
 import '../../resources/style_manager.dart';
 
@@ -141,11 +142,14 @@ class _ReadingHistoryViewState extends State<ReadingHistoryView> {
                                                     );
                                                   }
                                                 : () {
-                                                    Navigator.push(
+                                                    Navigator.pushNamed(
                                                       context,
-                                                      MaterialPageRoute(
-                                                        builder: (builder) =>
-                                                            const BluetoothThermalPrinter(),
+                                                      Routes.billView,
+                                                      arguments: BillArgs(
+                                                        bill:
+                                                            billSnapshot.data!,
+                                                        customer:
+                                                            widget.customer,
                                                       ),
                                                     );
                                                   },
