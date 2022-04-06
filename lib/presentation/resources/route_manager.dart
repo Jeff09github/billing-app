@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:maaa/presentation/splash/splash_view.dart';
-import 'package:maaa/presentation/water_bills/billing/bill_view.dart';
-import 'package:maaa/presentation/water_bills/customer_reading_history/customer_waterbill_history.dart';
+import 'package:maaa/data/arguments/reading_history_args.dart';
+import 'package:maaa/presentation/view/splash_view.dart';
+import 'package:maaa/presentation/view/water_bills/bill_view.dart';
+import 'package:maaa/presentation/view/water_bills/home_view.dart';
+import '../view/selection_view.dart';
+import '../view/water_bills/customer_waterbill_history.dart';
 
-import '../../model/arguments/reading_history_args.dart';
-import '../selection/selection_view.dart';
-import '../water_bills/customers_waterbills/customers_waterbills.dart';
 
 class Routes {
   static const String splashRoute = '/';
   static const String selectionRoute = '/selection';
-  static const String customersWaterBills = '/customersWaterBills';
+  static const String customersWaterBills = '/waterBillingHome';
   static const String customerReadingHistory = '/customerReadingHistory';
   static const String billView = '/billView';
 }
@@ -24,7 +24,7 @@ class RouteGenerator {
         return MaterialPageRoute(builder: (_) => const SelectionView());
       case Routes.customersWaterBills:
         return MaterialPageRoute(
-          builder: (_) => const CustomersWaterBillsView(),
+          builder: (_) => const HomeView(),
         );
       case Routes.customerReadingHistory:
         final args = routeSettings.arguments as ReadingHistoryArgs;

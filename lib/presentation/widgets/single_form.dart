@@ -1,23 +1,23 @@
 import 'package:flutter/material.dart';
 
-class SingleForm extends StatefulWidget {
-  final TextInputType textInputType;
+class SingleTextForm extends StatefulWidget {
+  final TextInputType keyboardInputType;
   final String label;
   final String? Function(String?) validation;
-  final Future<bool> Function(String) success;
-  const SingleForm(
+  final void Function(String) success;
+  const SingleTextForm(
       {Key? key,
-      required this.textInputType,
+      required this.keyboardInputType,
       required this.label,
       required this.validation,
       required this.success})
       : super(key: key);
 
   @override
-  State<SingleForm> createState() => _SingleFormState();
+  State<SingleTextForm> createState() => _SingleTextFormState();
 }
 
-class _SingleFormState extends State<SingleForm> {
+class _SingleTextFormState extends State<SingleTextForm> {
   final TextEditingController _textController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
@@ -34,7 +34,7 @@ class _SingleFormState extends State<SingleForm> {
             mainAxisSize: MainAxisSize.min,
             children: [
               TextFormField(
-                keyboardType: widget.textInputType,
+                keyboardType: widget.keyboardInputType,
                 decoration: InputDecoration(labelText: widget.label),
                 controller: _textController,
                 validator: widget.validation,
@@ -49,22 +49,9 @@ class _SingleFormState extends State<SingleForm> {
                           onPressed: () async {
                             final _result = _formKey.currentState?.validate();
                             if (_result == true) {
-                              setState(() {
-                                _isLoading = true;
-                              });
-                              await Future.delayed(
-                                  const Duration(milliseconds: 1000));
-                              final result =
-                                  await widget.success(_textController.text);
-
-                              if (result) {
-                                _textController.clear();
-                                Navigator.pop(context);
-                              } else {
-                                setState(() {
-                                  _isLoading = false;
-                                });
-                              }
+                              widget.success(_textController.text);
+                              _textController.clear();
+                              Navigator.pop(context);
                             }
                           },
                           child: const Text('ADD'),
