@@ -5,7 +5,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:maaa/data/repository/customer/customer_repository.dart';
 
-import '../../data/model/model.dart';
+import '../../../data/model/model.dart';
 
 part 'customer_event.dart';
 part 'customer_state.dart';

@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:maaa/bloc/reading/reading_bloc.dart';
 import 'package:maaa/data/model/model.dart';
 
-import '../../../bloc/customer/customer_bloc.dart';
+import '../../../logic/bloc/bloc.dart';
 import '../../../data/arguments/reading_history_args.dart';
 import '../../../resources/validation.dart';
 import '../../resources/color_manager.dart';

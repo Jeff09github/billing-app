@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:maaa/data/provider/local_database.dart';
+import 'package:maaa/logic/cubit/home_state/home_state_cubit.dart';
 
 import 'package:maaa/presentation/resources/route_manager.dart';
-import '../bloc/bloc.dart';
+import '../logic/bloc/bloc.dart';
 import '../data/repository/repository.dart';
 import '../presentation/resources/theme_manager.dart';
 
@@ -41,6 +42,9 @@ class _MyAppState extends State<MyApp> {
           BlocProvider(
             create: (context) => ReadingBloc(
                 readingRepository: context.read<ReadingRepository>()),
+          ),
+          BlocProvider(
+            create: (context) => HomeStateCubit(),
           ),
         ],
         child: MaterialApp(

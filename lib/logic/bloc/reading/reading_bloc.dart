@@ -5,8 +5,8 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:maaa/presentation/resources/enum.dart';
 
-import '../../data/model/model.dart';
-import '../../data/repository/repository.dart';
+import '../../../data/model/model.dart';
+import '../../../data/repository/repository.dart';
 
 part 'reading_event.dart';
 part 'reading_state.dart';

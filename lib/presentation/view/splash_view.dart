@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:maaa/data/provider/local_database.dart';
 import 'package:maaa/presentation/resources/color_manager.dart';
 
 import '../resources/route_manager.dart';
@@ -34,8 +35,11 @@ class _SplashViewState extends State<SplashView> with TickerProviderStateMixin {
     alpha = IntTween(begin: 1, end: text.length).animate(_animationController);
   }
 
-  void _startTimer() {
-    timer = Timer(const Duration(seconds: 8), _next);
+  Future<void> _startTimer() async {
+    await Future.delayed(const Duration(seconds: 5));
+    await LocalDatabase.instance.database;
+    _next();
+    // timer = Timer(const Duration(seconds: 8), _next);
   }
 
   void _next() async {

@@ -2,7 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:maaa/bloc/customer/customer_bloc.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:maaa/logic/cubit/home_state/home_state_cubit.dart';
 import 'package:maaa/presentation/resources/color_manager.dart';
 import 'package:maaa/presentation/resources/style_manager.dart';
 import 'package:maaa/presentation/view/water_bills/customer_list_view.dart';
@@ -10,6 +11,7 @@ import 'package:maaa/presentation/widgets/single_form.dart';
 import 'package:maaa/resources/validation.dart';
 
 import '../../../data/model/model.dart';
+import '../../../logic/bloc/bloc.dart';
 
 enum FormType { addCustomer, addReading, payment }
 
@@ -22,9 +24,11 @@ class HomeView extends StatelessWidget {
       backgroundColor: ColorManager.primary,
       appBar: const PreferredSize(
         preferredSize: Size.fromHeight(56.0),
-        child: CustomerAppBar(),
+        child: CustomAppBar(),
       ),
       body: const CustomerListView(),
+      bottomNavigationBar: const CustomBottomNavigation(),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           showModalBottomSheet(
@@ -55,92 +59,10 @@ class HomeView extends StatelessWidget {
       ),
     );
   }
-
-  // Future<bool> addReading(
-  //     {required String reading, required int customerId}) async {
-  //   Reading? _reading;
-  //   final _db = MaaaDatabase.instance;
-  //   await Future.delayed(const Duration(milliseconds: 1000));
-  //   _reading = await _db.addReading(
-  //     reading: reading,
-  //     billType: BillType.water,
-  //     customerId: customerId,
-  //   );
-  //   if (_reading != null) {
-  //     setState(() {});
-  //     return true;
-  //   } else {
-  //     return false;
-  //   }
-  // }
-
-  // void _onFormSelected(
-  //     FormType formType, BuildContext context, Customer? customer) {
-  //   late final Future<List<Customer>?> _customers;
-  //   _customers = getAllCustomer();
-  //   showModalBottomSheet<void>(
-  // isDismissible: false,
-  // isScrollControlled: true,
-  // context: context,
-  // clipBehavior: Clip.hardEdge,
-  //     builder: (BuildContext context) {
-  //       switch (formType) {
-  //         case FormType.addCustomer:
-  //           return SingleForm(
-  //             label: 'Full Name',
-  //             keyboardInputType: TextInputType.name,
-  //             validation: isTextValid,
-  //             success: (value) => addCustomer(fullName: value),
-  //           );
-  //         case FormType.payment:
-  //           return FutureBuilder<List<Customer>?>(
-  //               future: _customers,
-  //               builder: (context, snapshot) {
-  //                 if (snapshot.connectionState == ConnectionState.waiting) {
-  //                   return const LinearProgressIndicator();
-  //                 } else {
-  //                   return Column(
-  //                     mainAxisSize: MainAxisSize.min,
-  //                     children: [
-  //                       DropdownButtonFormField(
-  //                         hint: const Text('Customer Payment Name'),
-  //                         items: snapshot.data!
-  //                             .map(
-  //                               (e) => DropdownMenuItem(
-  //                                 child: Text(e.fullName),
-  //                                 value: e,
-  //                               ),
-  //                             )
-  //                             .toList(),
-  //                         onChanged: (value) {},
-  //                       ),
-  //                       SingleForm(
-  //                         label: 'Amount',
-  //                         keyboardInputType: TextInputType.number,
-  //                         validation: isTextValid,
-  //                         success: (value) => addCustomer(fullName: value),
-  //                       ),
-  //                     ],
-  //                   );
-  //                 }
-  //               });
-  //         case FormType.addReading:
-  //           return SingleForm(
-  //             label: 'Create New Reading',
-  //             keyboardInputType: TextInputType.phone,
-  //             validation: isCMValid,
-  //             success: (value) =>
-  //                 addReading(reading: value, customerId: customer!.id!),
-  //           );
-  //       }
-  //     },
-  //   );
-  // }
-
 }
 
-class CustomerAppBar extends StatelessWidget {
-  const CustomerAppBar({Key? key}) : super(key: key);
+class CustomAppBar extends StatelessWidget {
+  const CustomAppBar({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -177,6 +99,65 @@ class CustomerAppBar extends StatelessWidget {
     return Text(
       data,
       style: getBoldStyle(color: ColorManager.primary, fontSize: 18.0),
+    );
+  }
+}
+
+class CustomBottomNavigation extends StatelessWidget {
+  const CustomBottomNavigation({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final selectedTab = context.watch<HomeStateCubit>().state.tab;
+    return BottomAppBar(
+      clipBehavior: Clip.hardEdge,
+      notchMargin: 5.0,
+      shape: const CircularNotchedRectangle(),
+      child: SizedBox(
+        height: 50.0,
+        child: Row(
+          children: [
+            _homeTabButton(
+                selectedTab: selectedTab,
+                value: HomeTab.waterBilling,
+                icon: FontAwesomeIcons.droplet,
+                label: 'Water Billing',
+                context: context),
+            _homeTabButton(
+                selectedTab: selectedTab,
+                value: HomeTab.electricBilling,
+                icon: FontAwesomeIcons.boltLightning,
+                label: 'Electric Billing',
+                context: context),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Expanded _homeTabButton({
+    required HomeTab selectedTab,
+    required HomeTab value,
+    required IconData icon,
+    required String label,
+    required BuildContext context,
+  }) {
+    return Expanded(
+      child: TextButton.icon(
+        onPressed: () {
+          context.read<HomeStateCubit>().setTab(value);
+        },
+        icon: FaIcon(
+          icon,
+          color: value != selectedTab ? Colors.grey : ColorManager.primary,
+        ),
+        label: Text(
+          label,
+          style: getBoldStyle(
+              fontSize: 18.0,
+              color: value != selectedTab ? Colors.grey : ColorManager.primary),
+        ),
+      ),
     );
   }
 }

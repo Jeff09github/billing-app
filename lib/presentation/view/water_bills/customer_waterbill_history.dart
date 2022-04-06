@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import 'package:maaa/bloc/reading/reading_bloc.dart';
 import 'package:maaa/presentation/resources/color_manager.dart';
 import 'package:maaa/presentation/resources/enum.dart';
 import 'package:maaa/presentation/resources/style_manager.dart';
 
 import '../../../data/model/model.dart';
+import '../../../logic/bloc/bloc.dart';
+
 
 class ReadingHistoryView extends StatelessWidget {
   final Customer customer;
