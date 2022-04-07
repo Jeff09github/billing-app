@@ -4,6 +4,7 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:maaa/data/repository/customer/customer_repository.dart';
+import 'package:maaa/presentation/resources/enum.dart';
 
 import '../../../data/model/model.dart';
 
@@ -29,7 +30,10 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
     try {
       emit(CustomerLoading());
       await Future.delayed(const Duration(seconds: 2));
-      _customers = await customerRepository.getCustomerList();
+      print(event.billType);
+      _customers =
+          await customerRepository.getCustomerList(billType: event.billType);
+      
       emit(CustomerSuccess(customers: _customers));
     } catch (_) {
       emit(CustomerFailure());

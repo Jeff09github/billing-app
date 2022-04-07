@@ -15,13 +15,13 @@ class PaymentField {
 
 @JsonSerializable()
 class Payment extends Equatable {
-  int? id;
+  final int? id;
   final int customerId;
   final int amount;
   final String note;
   final String createdAt;
 
-  Payment(
+  const Payment(
       {this.id,
       required this.customerId,
       required this.amount,
@@ -49,7 +49,6 @@ class Payment extends Equatable {
       );
 
   @override
-  // TODO: implement props
   List<Object?> get props => [
         id,
         customerId,

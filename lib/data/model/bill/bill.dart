@@ -22,19 +22,19 @@ class BillField {
 
 @JsonSerializable()
 class Bill extends Equatable {
-  int? id;
-  int customerId;
-  int readingId;
-  BillType type;
-  String currentReading;
-  String previousReading;
-  int consumeCM;
-  int billAmount;
-  int previousbalance;
-  int totalAmount;
-  DateTime createdAt;
+  final int? id;
+  final int customerId;
+  final int readingId;
+  final BillType type;
+  final String currentReading;
+  final String previousReading;
+  final int consumeCM;
+  final int billAmount;
+  final int previousbalance;
+  final int totalAmount;
+  final DateTime createdAt;
 
-  Bill({
+  const Bill({
     this.id,
     required this.customerId,
     required this.readingId,
@@ -79,7 +79,6 @@ class Bill extends Equatable {
           createdAt: createdAt ?? this.createdAt);
 
   @override
-  // TODO: implement props
   get props => [
         id,
         customerId,

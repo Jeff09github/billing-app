@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:maaa/logic/cubit/home_state/home_state_cubit.dart';
 import 'package:maaa/presentation/resources/color_manager.dart';
+import 'package:maaa/presentation/resources/enum.dart';
 import 'package:maaa/presentation/resources/style_manager.dart';
 import 'package:maaa/presentation/view/water_bills/customer_list_view.dart';
 import 'package:maaa/presentation/widgets/single_form.dart';
@@ -30,27 +31,36 @@ class HomeView extends StatelessWidget {
       bottomNavigationBar: const CustomBottomNavigation(),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          showModalBottomSheet(
-            isDismissible: false,
-            isScrollControlled: true,
-            clipBehavior: Clip.hardEdge,
-            context: context,
-            builder: (context) {
-              return SingleTextForm(
-                  keyboardInputType: TextInputType.name,
-                  label: 'Enter Full Name',
-                  validation: Validation().nameValidation,
-                  success: (value) {
-                    final _customer = Customer(
-                        fullName: value, toPay: 0, createdAt: DateTime.now());
-                    context.read<CustomerBloc>().add(
-                          AddCustomer(customer: _customer),
-                        );
-                  });
-            },
-          );
-        },
+        onPressed: context.watch<CustomerBloc>().state is CustomerLoading
+            ? null
+            : () {
+                showModalBottomSheet(
+                  isDismissible: false,
+                  isScrollControlled: true,
+                  clipBehavior: Clip.hardEdge,
+                  context: context,
+                  builder: (context) {
+                    return SingleTextForm(
+                        keyboardInputType: TextInputType.name,
+                        label: 'Enter Full Name',
+                        validation: Validation().nameValidation,
+                        success: (value) {
+                          final tab = context.read<HomeStateCubit>().state.tab;
+                          final _customer = Customer(
+                            fullName: value,
+                            billType: tab == HomeTab.electricBilling
+                                ? BillType.electricity
+                                : BillType.water,
+                            toPay: 0,
+                            createdAt: DateTime.now(),
+                          );
+                          context.read<CustomerBloc>().add(
+                                AddCustomer(customer: _customer),
+                              );
+                        });
+                  },
+                );
+              },
         backgroundColor: Colors.white,
         child: Icon(
           Icons.person_add_alt_outlined,
@@ -144,9 +154,17 @@ class CustomBottomNavigation extends StatelessWidget {
   }) {
     return Expanded(
       child: TextButton.icon(
-        onPressed: () {
-          context.read<HomeStateCubit>().setTab(value);
-        },
+        onPressed: context.read<CustomerBloc>().state is CustomerLoading
+            ? null
+            : () {
+                context.read<HomeStateCubit>().setTab(value);
+                context.read<CustomerBloc>().add(
+                      LoadCustomerList(
+                          billType: value == HomeTab.waterBilling
+                              ? BillType.water
+                              : BillType.electricity),
+                    );
+              },
         icon: FaIcon(
           icon,
           color: value != selectedTab ? Colors.grey : ColorManager.primary,

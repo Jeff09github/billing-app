@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:maaa/data/model/model.dart';
+import 'package:maaa/logic/cubit/cubit.dart';
 
 import '../../../logic/bloc/bloc.dart';
 import '../../../data/arguments/reading_history_args.dart';
@@ -23,6 +24,7 @@ class CustomerListView extends StatelessWidget {
             child: CircularProgressIndicator(),
           );
         } else if (state is CustomerSuccess) {
+          final tab = context.read<HomeStateCubit>().state.tab;
           if (state.customers.isEmpty) {
             return Center(
               child: Text(
@@ -34,143 +36,160 @@ class CustomerListView extends StatelessWidget {
             return SingleChildScrollView(
               child: SizedBox(
                 width: MediaQuery.of(context).size.width,
-                child: DataTable(
-                  headingTextStyle:
-                      getBoldStyle(color: Colors.white, fontSize: 18.0),
-                  dataTextStyle:
-                      getRegularStyle(color: Colors.white, fontSize: 14.0),
-                  dividerThickness: 3.0,
-                  border: TableBorder.all(color: Colors.white),
-                  columnSpacing: 0.0,
-                  horizontalMargin: 0.0,
-                  columns: <DataColumn>[
-                    _buildDataColumn(label: 'Customer'),
-                    _buildDataColumn(label: 'Previous Reading'),
-                    _buildDataColumn(label: 'Current Reading'),
-                    _buildDataColumn(label: 'New Reading'),
-                  ],
-                  rows: List<DataRow>.generate(
-                    state.customers.length,
-                    (index) {
-                      return DataRow(
-                        cells: <DataCell>[
-                          DataCell(
-                            Align(
-                              alignment: Alignment.center,
-                              child: TextButton(
-                                onPressed: () {
-                                  Navigator.pushNamed(
-                                    context,
-                                    Routes.customerReadingHistory,
-                                    arguments: ReadingHistoryArgs(
-                                        customer: state.customers[index],
-                                        billType: BillType.water),
-                                  );
-                                },
-                                child: Text(
-                                  state.customers[index].fullName,
-                                  style: getRegularStyle(
-                                      color: ColorManager.primary),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      tab == HomeTab.waterBilling
+                          ? 'Water Billing'
+                          : 'Electric Billing',
+                      textAlign: TextAlign.center,
+                      style: getBoldStyle(fontSize: 36.0, color: Colors.white),
+                    ),
+                    const SizedBox(
+                      height: 10.0,
+                    ),
+                    DataTable(
+                      headingTextStyle:
+                          getBoldStyle(color: Colors.white, fontSize: 18.0),
+                      dataTextStyle:
+                          getRegularStyle(color: Colors.white, fontSize: 14.0),
+                      dividerThickness: 3.0,
+                      border: TableBorder.all(color: Colors.white),
+                      columnSpacing: 0.0,
+                      horizontalMargin: 0.0,
+                      columns: <DataColumn>[
+                        _buildDataColumn(label: 'Customer'),
+                        _buildDataColumn(label: 'Previous Reading'),
+                        _buildDataColumn(label: 'Current Reading'),
+                        _buildDataColumn(label: 'New Reading'),
+                      ],
+                      rows: List<DataRow>.generate(
+                        state.customers.length,
+                        (index) {
+                          return DataRow(
+                            cells: <DataCell>[
+                              DataCell(
+                                Align(
+                                  alignment: Alignment.center,
+                                  child: TextButton(
+                                    onPressed: () {
+                                      Navigator.pushNamed(
+                                        context,
+                                        Routes.customerReadingHistory,
+                                        arguments: ReadingHistoryArgs(
+                                            customer: state.customers[index],
+                                            billType: BillType.water),
+                                      );
+                                    },
+                                    child: Text(
+                                      state.customers[index].fullName,
+                                      style: getRegularStyle(
+                                          color: ColorManager.primary),
+                                    ),
+                                  ),
                                 ),
                               ),
-                            ),
-                          ),
-                          DataCell(
-                            Align(
-                              alignment: Alignment.center,
-                              child: Text(
-                                state.customers[index].previousReading ?? '',
+                              DataCell(
+                                Align(
+                                  alignment: Alignment.center,
+                                  child: Text(
+                                    state.customers[index].previousReading ??
+                                        '',
+                                  ),
+                                ),
                               ),
-                            ),
-                          ),
-                          DataCell(
-                            Align(
-                              alignment: Alignment.center,
-                              child: Text(
-                                state.customers[index].currentReading ?? '',
+                              DataCell(
+                                Align(
+                                  alignment: Alignment.center,
+                                  child: Text(
+                                    state.customers[index].currentReading ?? '',
+                                  ),
+                                ),
                               ),
-                            ),
-                          ),
-                          DataCell(
-                            Align(
-                              alignment: Alignment.center,
-                              child: IconButton(
-                                onPressed: () {
-                                  showModalBottomSheet(
-                                    isDismissible: false,
-                                    isScrollControlled: true,
-                                    clipBehavior: Clip.hardEdge,
-                                    context: context,
-                                    builder: (context) {
-                                      return SingleTextForm(
-                                        keyboardInputType: TextInputType.number,
-                                        label: 'Enter New Reading',
-                                        validation:
-                                            Validation().readingValidation,
-                                        success: (value) {
-                                          final reading = Reading(
-                                              customerId:
-                                                  state.customers[index].id!,
-                                              reading: value,
-                                              billType: BillType.water,
-                                              createdAt: DateTime.now());
-                                          context.read<ReadingBloc>().add(
-                                                AddReading(
-                                                    reading: reading,
-                                                    customer:
-                                                        state.customers[index]),
-                                              );
-                                          context.read<CustomerBloc>().add(
-                                                const LoadCustomerList(),
-                                              );
+                              DataCell(
+                                Align(
+                                  alignment: Alignment.center,
+                                  child: IconButton(
+                                    onPressed: () {
+                                      showModalBottomSheet(
+                                        isDismissible: false,
+                                        isScrollControlled: true,
+                                        clipBehavior: Clip.hardEdge,
+                                        context: context,
+                                        builder: (context) {
+                                          return SingleTextForm(
+                                            keyboardInputType:
+                                                TextInputType.number,
+                                            label: 'Enter New Reading',
+                                            validation:
+                                                Validation().readingValidation,
+                                            success: (value) {
+                                              final reading = Reading(
+                                                  customerId: state
+                                                      .customers[index].id!,
+                                                  reading: value,
+                                                  billType: BillType.water,
+                                                  createdAt: DateTime.now());
+                                              context.read<ReadingBloc>().add(
+                                                    AddReading(
+                                                        reading: reading,
+                                                        customer: state
+                                                            .customers[index]),
+                                                  );
+                                              context.read<CustomerBloc>().add(
+                                                    const LoadCustomerList(),
+                                                  );
+                                            },
+                                          );
                                         },
                                       );
                                     },
-                                  );
-                                },
-                                icon: const Icon(
-                                  Icons.add,
-                                  color: Colors.white,
+                                    icon: const Icon(
+                                      Icons.add,
+                                      color: Colors.white,
+                                    ),
+                                  ),
                                 ),
-                              ),
-                            ),
-                          )
-                          // DataCell(
-                          //   Align(
-                          //     alignment: Alignment.center,
-                          //     child: TextButton(
-                          //       onPressed: () {
-                          //         showModalBottomSheet(
-                          //           isDismissible: false,
-                          //           isScrollControlled: true,
-                          //           clipBehavior: Clip.hardEdge,
-                          //           context: context,
-                          //           builder: (context) {
-                          //             return SingleForm(
-                          //               keyboardInputType: TextInputType.number,
-                          //               label: 'Enter New Reading',
-                          //               validation:
-                          //                   Validation().readingValidation,
-                          //               success: (value) {
+                              )
+                              // DataCell(
+                              //   Align(
+                              //     alignment: Alignment.center,
+                              //     child: TextButton(
+                              //       onPressed: () {
+                              //         showModalBottomSheet(
+                              //           isDismissible: false,
+                              //           isScrollControlled: true,
+                              //           clipBehavior: Clip.hardEdge,
+                              //           context: context,
+                              //           builder: (context) {
+                              //             return SingleForm(
+                              //               keyboardInputType: TextInputType.number,
+                              //               label: 'Enter New Reading',
+                              //               validation:
+                              //                   Validation().readingValidation,
+                              //               success: (value) {
 
-                          //               },
-                          //             );
-                          //           },
-                          //         );
-                          //       },
-                          //       child: Text(
-                          //         'CREATE',
-                          //         style: getRegularStyle(
-                          //           color: ColorManager.primary,
-                          //         ),
-                          //       ),
-                          //     ),
-                          //   ),
-                          // )
-                        ],
-                      );
-                    },
-                  ),
+                              //               },
+                              //             );
+                              //           },
+                              //         );
+                              //       },
+                              //       child: Text(
+                              //         'CREATE',
+                              //         style: getRegularStyle(
+                              //           color: ColorManager.primary,
+                              //         ),
+                              //       ),
+                              //     ),
+                              //   ),
+                              // )
+                            ],
+                          );
+                        },
+                      ),
+                    ),
+                  ],
                 ),
               ),
             );

@@ -8,10 +8,12 @@ abstract class CustomerEvent extends Equatable {
 }
 
 class LoadCustomerList extends CustomerEvent {
-  const LoadCustomerList();
+  final BillType billType;
+
+  const LoadCustomerList({this.billType = BillType.water});
 
   @override
-  List<Object> get props => [];
+  List<Object> get props => [billType];
 }
 
 class AddCustomer extends CustomerEvent {

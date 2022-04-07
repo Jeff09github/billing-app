@@ -41,6 +41,7 @@ class LocalDatabase {
       CREATE TABLE $tableCustomers(
         ${CustomerField.id} $_idType,
         ${CustomerField.fullName} $_textType,
+        ${CustomerField.billType} $_textType,
         ${CustomerField.previousReading} $_textTypeN,
         ${CustomerField.currentReading} $_textTypeN,
         ${CustomerField.toPay} $_integerType,
@@ -89,6 +90,16 @@ class LocalDatabase {
     print('done creating db');
   }
 
+  Future<List<Map<String, Object?>>> getCustomerList(
+      {required BillType billType}) async {
+    final _db = await instance.database;
+    const _orderBy = '${CustomerField.fullName} ASC';
+    return await _db.query(tableCustomers,
+        where: '${CustomerField.billType} = ?',
+        whereArgs: [billType.name],
+        orderBy: _orderBy);
+  }
+
   Future<Customer?> addCustomer({required Customer customer}) async {
     final _db = await instance.database;
     final _id = await _db.insert(tableCustomers, customer.toJson());
@@ -106,25 +117,24 @@ class LocalDatabase {
     return updatedCustomer;
   }
 
+  Future<List<Map<String, Object?>>> getReadingList(
+      int customerId, BillType billType) async {
+    final _db = await instance.database;
+    return await _db.rawQuery(
+        'SELECT * FROM $tableReadings WHERE ${ReadingField.customerId} = $customerId ORDER BY ${ReadingField.id} ASC');
+  }
+
   Future<int?> addReading({
     required Reading newReading,
     required Customer customer,
   }) async {
-    // final reading = Reading(
-    //   billType: billType,
-    //   reading: currentReading,
-    //   customerId: customer.id!,
-    //   createdAt: DateTime.now(),
-    // );
     final db = await instance.database;
-    // final currentReading = customer.currentReading;
     final updatedCustomer = customer.copy(
       previousReading: customer.currentReading,
       currentReading: newReading.reading,
     );
 
     int? readingId;
-
     await db.transaction(
       (txn) async => {
         readingId = await txn.insert(tableReadings, newReading.toJson()),
@@ -139,75 +149,66 @@ class LocalDatabase {
     return readingId;
   }
 
-  Future<List<Map<String, Object?>>> getReadingList(
-      int customerId, BillType billType) async {
-    final _db = await instance.database;
-    return await _db.rawQuery(
-        'SELECT * FROM $tableReadings WHERE ${ReadingField.customerId} = $customerId ORDER BY ${ReadingField.id} ASC');
-  }
-
-  Future<List<Reading>?> getLastTwoReading(
-      int customerId, BillType billType) async {
-    try {
-      final _db = await instance.database;
-      // final _result = await _db
-      //     .query(tableReadings, where: 'id  = ?', whereArgs: [customerId]);
-      final _result = await _db.rawQuery(
-          'SELECT * FROM $tableReadings WHERE ${ReadingField.customerId} = $customerId ORDER BY ${ReadingField.id} DESC LIMIT 2');
-      print(_result);
-      return _result.map((e) => Reading.fromJson(e)).toList();
-    } catch (e) {
-      print('error: $e');
-      return null;
-    }
-  }
-
-  Future<List<Map<String, Object?>>> getCustomerList() async {
-    final _db = await instance.database;
-    const _orderBy = '${CustomerField.fullName} ASC';
-    return await _db.query(tableCustomers, orderBy: _orderBy);
-  }
-
-  Future<Bill?> createBill({
+  Future<int?> createBill({
     required Customer customer,
-    required Reading currentReading,
-    required Reading previousReading,
+    // required Reading currentReading,
+    // required Reading previousReading,
+    required Bill bill,
     required BillType billType,
   }) async {
-    try {
-      final _db = await instance.database;
-      final _consumeCM = int.parse(currentReading.reading) -
-          int.parse(previousReading.reading);
-      final _billAmount = _consumeCM * 80;
-      final _balance = customer.toPay;
-      final _totalAmount = _billAmount + _balance;
-      final _bill = Bill(
-        customerId: customer.id!,
-        readingId: currentReading.id!,
-        type: billType,
-        currentReading: currentReading.reading,
-        previousReading: previousReading.reading,
-        consumeCM: _consumeCM,
-        billAmount: _billAmount,
-        previousbalance: _balance,
-        totalAmount: _totalAmount,
-        createdAt: DateTime.now(),
-      );
-      // final _id = await _db.insert();
-      final _batch = _db.batch();
-
-      _batch.insert(tableBills, _bill.toJson());
-
-      final _customer = customer.copy(toPay: _totalAmount);
-      _batch.update(tableCustomers, _customer.toJson(),
-          where: '${CustomerField.id} = ?', whereArgs: [_customer.id]);
-      final _result = await _batch.commit();
-      print(_result);
-      return _bill.copy();
-    } catch (e) {
-      return null;
-    }
+    final db = await instance.database;
+    final updateCustomer = customer.copy(toPay: bill.totalAmount);
+    int? billId;
+    await db.transaction(
+      (txn) async => {
+        billId = await txn.insert(tableBills, bill.toJson()),
+        await txn.update(tableCustomers, updateCustomer.toJson(),
+            where: '${CustomerField.id} = ?', whereArgs: [updateCustomer.id])
+      },
+    );
+    return billId;
   }
+
+  // Future<List<Map<String, Object?>>> createBill({
+  //   required Customer customer,
+  //   required Reading currentReading,
+  //   required Reading previousReading,
+  //   required BillType billType,
+  // }) async {
+  //   try {
+  //     final _db = await instance.database;
+  //     final _consumeCM = int.parse(currentReading.reading) -
+  //         int.parse(previousReading.reading);
+  //     final _billAmount = _consumeCM * 80;
+  //     final _balance = customer.toPay;
+  //     final _totalAmount = _billAmount + _balance;
+  //     final _bill = Bill(
+  //       customerId: customer.id!,
+  //       readingId: currentReading.id!,
+  //       type: billType,
+  //       currentReading: currentReading.reading,
+  //       previousReading: previousReading.reading,
+  //       consumeCM: _consumeCM,
+  //       billAmount: _billAmount,
+  //       previousbalance: _balance,
+  //       totalAmount: _totalAmount,
+  //       createdAt: DateTime.now(),
+  //     );
+  //     // final _id = await _db.insert();
+  //     final _batch = _db.batch();
+
+  //     _batch.insert(tableBills, _bill.toJson());
+
+  //     final _customer = customer.copy(toPay: _totalAmount);
+  //     _batch.update(tableCustomers, _customer.toJson(),
+  //         where: '${CustomerField.id} = ?', whereArgs: [_customer.id]);
+  //     final _result = await _batch.commit();
+  //     print(_result);
+  //     return _bill.copy();
+  //   } catch (e) {
+  //     return null;
+  //   }
+  // }
 
   Future<Bill?> getBill({required int readingId}) async {
     try {

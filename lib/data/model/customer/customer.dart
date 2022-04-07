@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:maaa/presentation/resources/enum.dart';
 
 part 'customer.g.dart';
 
@@ -8,6 +9,7 @@ const String tableCustomers = 'customers';
 class CustomerField {
   static const String id = 'id';
   static const String fullName = 'fullName';
+  static const String billType = 'billType';
   static const String previousReading = 'previousReading';
   static const String currentReading = 'currentReading';
   static const String toPay = 'toPay';
@@ -19,6 +21,7 @@ class CustomerField {
 class Customer extends Equatable {
   final int? id;
   final String fullName;
+  final BillType billType;
   final String? previousReading;
   final String? currentReading;
   final int toPay;
@@ -28,6 +31,7 @@ class Customer extends Equatable {
   const Customer({
     this.id,
     required this.fullName,
+    required this.billType,
     this.previousReading,
     this.currentReading,
     required this.toPay,
@@ -43,6 +47,7 @@ class Customer extends Equatable {
   Customer copy({
     int? id,
     String? fullName,
+    BillType? billType,
     String? previousReading,
     String? currentReading,
     int? toPay,
@@ -51,9 +56,10 @@ class Customer extends Equatable {
   }) =>
       Customer(
         id: id ?? this.id,
+        fullName: fullName ?? this.fullName,
+        billType: billType ?? this.billType,
         previousReading: previousReading ?? this.previousReading,
         currentReading: currentReading ?? this.currentReading,
-        fullName: fullName ?? this.fullName,
         toPay: toPay ?? this.toPay,
         createdAt: createdAt ?? this.createdAt,
         updatedAt: updatedAt ?? this.updatedAt,
@@ -63,6 +69,7 @@ class Customer extends Equatable {
   List<Object?> get props => [
         id,
         fullName,
+        billType,
         previousReading,
         currentReading,
         toPay,

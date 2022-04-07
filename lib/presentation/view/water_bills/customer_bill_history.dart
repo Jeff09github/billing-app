@@ -8,7 +8,6 @@ import 'package:maaa/presentation/resources/style_manager.dart';
 import '../../../data/model/model.dart';
 import '../../../logic/bloc/bloc.dart';
 
-
 class ReadingHistoryView extends StatelessWidget {
   final Customer customer;
   final BillType billType;
@@ -85,7 +84,11 @@ class ReadingHistoryView extends StatelessWidget {
     return Scaffold(
       backgroundColor: ColorManager.primary,
       appBar: AppBar(
-        title: Text('${customer.fullName} Balance: ${customer.toPay} '),
+        centerTitle: true,
+        title: Text(
+          'Customer Details',
+          style: getBoldStyle(color: Colors.white, fontSize: 36.0),
+        ),
       ),
       body: BlocBuilder<ReadingBloc, ReadingState>(
         builder: (context, state) {
@@ -94,44 +97,60 @@ class ReadingHistoryView extends StatelessWidget {
               child: CircularProgressIndicator(),
             );
           } else if (state is ReadingSuccess) {
-            return SingleChildScrollView(
-              child: Align(
-                alignment: Alignment.topCenter,
-                child: DataTable(
-                  columns: <DataColumn>[
-                    _buildDataColumn(label: 'Date'),
-                    _buildDataColumn(label: 'Reading'),
-                    _buildDataColumn(label: 'Billing'),
-                  ],
-                  rows: List.generate(
-                    state.readings.length,
-                    (index) => DataRow(
-                      cells: <DataCell>[
-                        _buildDataCellText(
-                          text: DateFormat.yMd()
-                              .format(state.readings[index].createdAt),
-                        ),
-                        _buildDataCellText(
-                          text: state.readings[index].reading,
-                        ),
-                        index == 0
-                            ? _buildDataCellText(text: '')
-                            : DataCell(
-                                TextButton(
-                                  onPressed: () {},
-                                  child: Text(
-                                    '',
-                                    style: getRegularStyle(
-                                      fontSize: 18.0,
-                                      color: ColorManager.primary,
+            return Padding(
+              padding: const EdgeInsets.only(left: 32.0,top: 24.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    'Name: ${customer.fullName}',
+                    style: getBoldStyle(color: Colors.white, fontSize: 18.0),
+                  ),
+                  Text(
+                    'To Pay: ${customer.toPay}.00',
+                    style: getBoldStyle(color: Colors.white, fontSize: 18.0),
+                  ),
+                  SingleChildScrollView(
+                    child: DataTable(
+                      showCheckboxColumn: false,
+                      horizontalMargin: 0.0,
+                      columns: <DataColumn>[
+                        _buildDataColumn(label: 'Date'),
+                        _buildDataColumn(label: 'Reading'),
+                        _buildDataColumn(label: 'Billing'),
+                      ],
+                      rows: List.generate(
+                        state.readings.length,
+                        (index) => DataRow(
+                          cells: <DataCell>[
+                            _buildDataCellText(
+                              text: DateFormat.yMd()
+                                  .format(state.readings[index].createdAt),
+                            ),
+                            _buildDataCellText(
+                              text: state.readings[index].reading,
+                            ),
+                            index == 0
+                                ? _buildDataCellText(text: '')
+                                : DataCell(
+                                    TextButton(
+                                      onPressed: () {},
+                                      child: Text(
+                                        'View',
+                                        style: getRegularStyle(
+                                          fontSize: 18.0,
+                                          color: ColorManager.primary,
+                                        ),
+                                      ),
                                     ),
                                   ),
-                                ),
-                              ),
-                      ],
+                          ],
+                        ),
+                      ),
                     ),
                   ),
-                ),
+                ],
               ),
             );
           } else {

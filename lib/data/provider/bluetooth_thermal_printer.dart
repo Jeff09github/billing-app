@@ -31,7 +31,6 @@ class _BluetoothThermalPrinterState extends State<BluetoothThermalPrinter> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     initPlatformState();
   }

@@ -3,14 +3,12 @@ import 'package:maaa/data/arguments/reading_history_args.dart';
 import 'package:maaa/presentation/view/splash_view.dart';
 import 'package:maaa/presentation/view/water_bills/bill_view.dart';
 import 'package:maaa/presentation/view/water_bills/home_view.dart';
-import '../view/selection_view.dart';
-import '../view/water_bills/customer_waterbill_history.dart';
+import '../view/water_bills/customer_bill_history.dart';
 
 
 class Routes {
   static const String splashRoute = '/';
-  static const String selectionRoute = '/selection';
-  static const String customersWaterBills = '/waterBillingHome';
+  static const String homeView = '/homeView';
   static const String customerReadingHistory = '/customerReadingHistory';
   static const String billView = '/billView';
 }
@@ -20,9 +18,7 @@ class RouteGenerator {
     switch (routeSettings.name) {
       case Routes.splashRoute:
         return MaterialPageRoute(builder: (_) => const SplashView());
-      case Routes.selectionRoute:
-        return MaterialPageRoute(builder: (_) => const SelectionView());
-      case Routes.customersWaterBills:
+      case Routes.homeView:
         return MaterialPageRoute(
           builder: (_) => const HomeView(),
         );
