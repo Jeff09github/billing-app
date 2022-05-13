@@ -7,20 +7,45 @@ abstract class CustomerEvent extends Equatable {
   List<Object> get props => [];
 }
 
-class LoadCustomerList extends CustomerEvent {
+class LoadCustomerProfileList extends CustomerEvent {
   final BillType billType;
 
-  const LoadCustomerList({this.billType = BillType.water});
+  const LoadCustomerProfileList({this.billType = BillType.water});
 
   @override
   List<Object> get props => [billType];
 }
 
-class AddCustomer extends CustomerEvent {
-  final Customer customer;
+class UpdateCustomerWaterBillsinfo extends CustomerEvent {
+  final List<WaterBillInfo> waterBillsInfo;
+  final int customerId;
 
-  const AddCustomer({required this.customer});
+  const UpdateCustomerWaterBillsinfo(
+      {required this.waterBillsInfo, required this.customerId});
 
   @override
-  List<Object> get props => [customer];
+  List<Object> get props => [waterBillsInfo, customerId];
 }
+
+class AddCustomer extends CustomerEvent {
+  final String name;
+  final BillType billType;
+
+  const AddCustomer({required this.name, required this.billType});
+
+  @override
+  List<Object> get props => [name, billType];
+}
+
+// class AddReading extends CustomerEvent {
+//   final Reading reading;
+//   final Customer customer;
+
+//   const AddReading({
+//     required this.reading,
+//     required this.customer,
+//   });
+
+//   @override
+//   List<Object> get props => [reading, customer];
+// }

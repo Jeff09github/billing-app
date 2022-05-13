@@ -33,8 +33,9 @@ class LocalDatabase {
     const _idType = 'INTEGER PRIMARY KEY AUTOINCREMENT';
     const _textType = 'TEXT NOT NULL';
     const _textTypeN = 'TEXT';
-    // const _boolType = 'BOOLEAN NOT NULL';
+    const _boolType = 'BOOLEAN NOT NULL';
     const _integerType = 'INTEGER NOT NULL';
+    const _integerTypeN = 'INTEGER';
 
     final _batch = db.batch();
     _batch.execute('''
@@ -42,39 +43,60 @@ class LocalDatabase {
         ${CustomerField.id} $_idType,
         ${CustomerField.fullName} $_textType,
         ${CustomerField.billType} $_textType,
-        ${CustomerField.previousReading} $_textTypeN,
-        ${CustomerField.currentReading} $_textTypeN,
-        ${CustomerField.toPay} $_integerType,
         ${CustomerField.createdAt} $_textType,
         ${CustomerField.updatedAt} $_textTypeN
       )
     ''');
 
+    // _batch.execute('''
+    //   CREATE TABLE $tableReadings(
+    //     ${ReadingField.id} $_idType,
+    //     ${ReadingField.initial} $_boolType,
+    //     ${ReadingField.customerId} $_integerType,
+    //     ${ReadingField.billType} $_textType,
+    //     ${ReadingField.reading} $_textType,
+    //     ${ReadingField.createdAt} $_textType
+    //   )
+    // ''');
+
     _batch.execute('''
-      CREATE TABLE $tableReadings(
-        ${ReadingField.id} $_idType,
-        ${ReadingField.customerId} $_integerType,
-        ${ReadingField.billType} $_textType,
-        ${ReadingField.reading} $_textType,
-        ${ReadingField.createdAt} $_textType
+      CREATE TABLE $tableWaterBillsInfo(
+        ${WaterBillsInfoField.id} $_idType,
+        ${WaterBillsInfoField.customerId} $_integerType,
+        ${WaterBillsInfoField.reading} $_textType,
+        ${WaterBillsInfoField.bill} $_integerTypeN,
+        ${WaterBillsInfoField.initial} $_boolType,
+        ${WaterBillsInfoField.dateCreated} $_textType,
+        ${WaterBillsInfoField.dateUpdated} $_textTypeN
       )
     ''');
 
-    _batch.execute('''
-      CREATE TABLE $tableBills(
-        ${BillField.id} $_idType,
-        ${BillField.customerId} $_integerType,
-        ${BillField.readingId} $_integerType,
-        ${BillField.type} $_textType,
-        ${BillField.currentReading} $_textTypeN,
-        ${BillField.previousReading} $_textTypeN,
-        ${BillField.consumeCM} $_integerType,
-        ${BillField.billAmount} $_integerType,
-        ${BillField.previousbalance} $_integerType,
-        ${BillField.totalAmount} $_integerType,
-        ${BillField.createdAt} $_textType
-      )
-    ''');
+    // _batch.execute('''
+    //   CREATE TABLE $tableWaterBills(
+    //     ${WaterBillsInfoField.id} $_idType,
+    //     ${WaterBillsInfoField.customerId} $_boolType,
+    //     ${WaterBillsInfoField.reading} $_integerType,
+    //     ${WaterBillsInfoField.bill} $_textType,
+    //     ${WaterBillsInfoField.dateCreated} $_textType,
+    //     ${WaterBillsInfoField.dateUpdated} $_textTypeN
+    //   )
+    // ''');
+
+    // _batch.execute('''
+    //   CREATE TABLE $tableBills(
+    //     ${BillField.id} $_idType,
+    //     ${BillField.customerId} $_integerType,
+    //     ${BillField.readingId} $_integerType,
+    //     ${BillField.type} $_textType,
+    //     ${BillField.currentReading} $_textTypeN,
+    //     ${BillField.previousReading} $_textTypeN,
+    //     ${BillField.consumeCM} $_integerType,
+    //     ${BillField.billAmount} $_integerType,
+    //     ${BillField.previousbalance} $_integerType,
+    //     ${BillField.totalAmount} $_integerType,
+    //     ${BillField.createdAt} $_textType
+    //   )
+    // ''');
 
     _batch.execute('''
       CREATE TABLE $tablePayments(
@@ -100,127 +122,51 @@ class LocalDatabase {
         orderBy: _orderBy);
   }
 
-  Future<Customer?> addCustomer({required Customer customer}) async {
+  Future<int> addCustomer({required Customer customer}) async {
     final _db = await instance.database;
-    final _id = await _db.insert(tableCustomers, customer.toJson());
-    return customer.copy(id: _id);
+    return await _db.insert(tableCustomers, customer.toJson());
   }
 
-  Future<Customer> updateCustomer({required Customer updatedCustomer}) async {
+  Future<int> addWaterBillInfo({required WaterBillInfo waterBillInfo}) async {
+    final _db = await instance.database;
+    return await _db.insert(tableWaterBillsInfo, waterBillInfo.toJson());
+  }
+
+  Future<void> updateWaterBillInfo(
+      {required WaterBillInfo waterBillInfo}) async {
     final _db = await instance.database;
     await _db.update(
-      tableCustomers,
-      updatedCustomer.toJson(),
-      where: '${CustomerField.id} = ?',
-      whereArgs: [updatedCustomer.id],
+      tableWaterBillsInfo,
+      waterBillInfo.toJson(),
+      where: '${WaterBillsInfoField.id} == ? ',
+      whereArgs: [waterBillInfo.id],
     );
-    return updatedCustomer;
   }
 
-  Future<List<Map<String, Object?>>> getReadingList(
-      int customerId, BillType billType) async {
+  Future<List<Map<String, Object?>>> getListOfWaterBillInfo(
+      {required Customer customer}) async {
     final _db = await instance.database;
-    return await _db.rawQuery(
-        'SELECT * FROM $tableReadings WHERE ${ReadingField.customerId} = $customerId ORDER BY ${ReadingField.id} ASC');
+    return await _db.query(
+      tableWaterBillsInfo,
+      where: '${WaterBillsInfoField.customerId} ==  ?',
+      whereArgs: [customer.id],
+    );
   }
 
-  Future<int?> addReading({
-    required Reading newReading,
-    required Customer customer,
-  }) async {
-    final db = await instance.database;
-    final updatedCustomer = customer.copy(
-      previousReading: customer.currentReading,
-      currentReading: newReading.reading,
-    );
-
-    int? readingId;
-    await db.transaction(
-      (txn) async => {
-        readingId = await txn.insert(tableReadings, newReading.toJson()),
-        await txn.update(
-          tableCustomers,
-          updatedCustomer.toJson(),
-          where: '${CustomerField.id} = ?',
-          whereArgs: [updatedCustomer.id],
-        ),
-      },
-    );
-    return readingId;
+  Future<int> createWaterBill({required WaterBill waterBill, required}) async {
+    final _db = await instance.database;
+    return await _db.insert(tableWaterBills, waterBill.toJson());
   }
 
-  Future<int?> createBill({
-    required Customer customer,
-    // required Reading currentReading,
-    // required Reading previousReading,
-    required Bill bill,
-    required BillType billType,
-  }) async {
-    final db = await instance.database;
-    final updateCustomer = customer.copy(toPay: bill.totalAmount);
-    int? billId;
-    await db.transaction(
-      (txn) async => {
-        billId = await txn.insert(tableBills, bill.toJson()),
-        await txn.update(tableCustomers, updateCustomer.toJson(),
-            where: '${CustomerField.id} = ?', whereArgs: [updateCustomer.id])
-      },
-    );
-    return billId;
-  }
-
-  // Future<List<Map<String, Object?>>> createBill({
-  //   required Customer customer,
-  //   required Reading currentReading,
-  //   required Reading previousReading,
-  //   required BillType billType,
-  // }) async {
-  //   try {
-  //     final _db = await instance.database;
-  //     final _consumeCM = int.parse(currentReading.reading) -
-  //         int.parse(previousReading.reading);
-  //     final _billAmount = _consumeCM * 80;
-  //     final _balance = customer.toPay;
-  //     final _totalAmount = _billAmount + _balance;
-  //     final _bill = Bill(
-  //       customerId: customer.id!,
-  //       readingId: currentReading.id!,
-  //       type: billType,
-  //       currentReading: currentReading.reading,
-  //       previousReading: previousReading.reading,
-  //       consumeCM: _consumeCM,
-  //       billAmount: _billAmount,
-  //       previousbalance: _balance,
-  //       totalAmount: _totalAmount,
-  //       createdAt: DateTime.now(),
-  //     );
-  //     // final _id = await _db.insert();
-  //     final _batch = _db.batch();
-
-  //     _batch.insert(tableBills, _bill.toJson());
-
-  //     final _customer = customer.copy(toPay: _totalAmount);
-  //     _batch.update(tableCustomers, _customer.toJson(),
-  //         where: '${CustomerField.id} = ?', whereArgs: [_customer.id]);
-  //     final _result = await _batch.commit();
-  //     print(_result);
-  //     return _bill.copy();
-  //   } catch (e) {
-  //     return null;
-  //   }
+  // Future<List<Map<String, Object?>>> fetchWaterBill(
+  //     {required int waterBillId}) async {
+  //   final _db = await instance.database;
+    // return await _db.query(tableWaterBills,
+    //     where: '${FieldWaterBills.id} == ?', whereArgs: [waterBillId]);
   // }
 
-  Future<Bill?> getBill({required int readingId}) async {
-    try {
-      final _db = await instance.database;
-      final _result = await _db.rawQuery(
-          'SELECT * FROM $tableBills WHERE ${BillField.readingId} = $readingId');
-      return Bill.fromJson(_result[0]);
-    } catch (e) {
-      print(e);
-      return null;
-    }
-  }
+////////////////////////////////////////////////////////////////////////////////////
+  
 
   Future<Payment?> postPayment(
       {required String amount, required Customer customer}) async {
@@ -235,11 +181,10 @@ class LocalDatabase {
       int? paymentId;
       final result = await _db.transaction((txn) async {
         paymentId = await txn.insert(tablePayments, _payment.toJson());
-        int newTopay = customer.toPay - _payment.amount;
-        await txn.update(tableCustomers, {CustomerField.toPay: newTopay},
-            where: '${CustomerField.id} = ?', whereArgs: [customer.id]);
+        // int newTopay = customer.toPay - _payment.amount;
+        // await txn.update(tableCustomers, {CustomerField.toPay: newTopay},
+        //     where: '${CustomerField.id} = ?', whereArgs: [customer.id]);
       });
-      print('payment result = $result');
       return _payment.copy(id: paymentId);
     } catch (e) {
       print(e);

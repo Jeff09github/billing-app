@@ -10,12 +10,14 @@ abstract class CustomerState extends Equatable {
 class CustomerLoading extends CustomerState {}
 
 class CustomerSuccess extends CustomerState {
-  final List<Customer> customers;
+  final List<CustomerProfile> customerProfiles;
 
-  const CustomerSuccess({required this.customers});
+  const CustomerSuccess({
+    required this.customerProfiles,
+  });
 
   @override
-  List<Object> get props => [customers];
+  List<Object> get props => [customerProfiles];
 }
 
 class CustomerFailure extends CustomerState {}

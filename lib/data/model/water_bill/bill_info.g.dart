@@ -1,30 +1,31 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'customer.dart';
+part of 'bill_info.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
-Customer _$CustomerFromJson(Map<String, dynamic> json) => Customer(
+WaterBillInfo _$WaterBillInfoFromJson(Map<String, dynamic> json) =>
+    WaterBillInfo(
       id: json['id'] as int?,
-      fullName: json['fullName'] as String,
-      billType: $enumDecode(_$BillTypeEnumMap, json['billType']),
+      customerId: json['customerId'] as int,
+      reading: json['reading'] as String,
+      bill: WaterBillInfo._waterBillFromString(json['bill'] as String?),
+      initial: WaterBillInfo._boolFromInt(json['initial'] as int),
       dateCreated: DateTime.parse(json['dateCreated'] as String),
       dateUpdated: json['dateUpdated'] == null
           ? null
           : DateTime.parse(json['dateUpdated'] as String),
     );
 
-Map<String, dynamic> _$CustomerToJson(Customer instance) => <String, dynamic>{
+Map<String, dynamic> _$WaterBillInfoToJson(WaterBillInfo instance) =>
+    <String, dynamic>{
       'id': instance.id,
-      'fullName': instance.fullName,
-      'billType': _$BillTypeEnumMap[instance.billType],
+      'customerId': instance.customerId,
+      'reading': instance.reading,
+      'bill': WaterBillInfo._waterBilltoString(instance.bill),
+      'initial': instance.initial,
       'dateCreated': instance.dateCreated.toIso8601String(),
       'dateUpdated': instance.dateUpdated?.toIso8601String(),
     };
-
-const _$BillTypeEnumMap = {
-  BillType.water: 'water',
-  BillType.electricity: 'electricity',
-};
