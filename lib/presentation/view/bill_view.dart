@@ -1,3 +1,4 @@
+import 'package:blue_thermal_printer/blue_thermal_printer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -30,14 +31,6 @@ class _BillViewState extends State<BillView> {
           if (state is BillViewLoading) {
             return const CustomProgressIndicator();
           } else if (state is BillViewSuccess) {
-            final items = state.devices
-                .map(
-                  (e) => DropdownMenuItem(
-                    child: Text('Name: ${e.name}'),
-                  ),
-                )
-                .toList();
-
             return Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -75,23 +68,52 @@ class _BillViewState extends State<BillView> {
                     )}'),
                   ],
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                Column(
                   children: [
-                    DropdownButton(items: items, onChanged: null),
-                    TextButton(
-                      onPressed: () {
-                        context.read<BillViewCubit>().getBluetoothdevices();
-                      },
-                      child: Text(context.read<BillViewCubit>().connected
-                          ? 'Disconnect'
-                          : 'Connect'),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        context.read<BillViewCubit>().getBluetoothdevices();
-                      },
-                      child: Text(items.isEmpty ? 'GET DEVICES' : 'PRINT'),
+                    const Text('Note: Bluetooth must be On!'),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        DropdownButton<BluetoothDevice>(
+                          dropdownColor: ColorManager.primary,
+                          items: _getDeviceItems(state.devices),
+                          value: state.device,
+                          onChanged: (value) {
+                            if (value == null) {
+                              final snackBar = SnackBar(
+                                content: const Text('No Device Found!'),
+                                action: SnackBarAction(
+                                  label: 'Undo',
+                                  onPressed: () {
+                                    ScaffoldMessenger.of(context)
+                                        .clearSnackBars();
+                                  },
+                                ),
+                              );
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(snackBar);
+                            } else {
+                              context
+                                  .read<BillViewCubit>()
+                                  .selectBluetoothDevice(value);
+                            }
+                          },
+                        ),
+                        if (state.device != null)
+                          TextButton(
+                            onPressed: () {
+                              if (state.device!.connected) {
+                                context.read<BillViewCubit>().disconnect();
+                              } else {
+                                context.read<BillViewCubit>().connect();
+                              }
+                            },
+                            child: Text(state.device!.connected
+                                ? 'Disconnect'
+                                : 'Connect'),
+                          ),
+                        _getGetDeviceOrPrintButton(state),
+                      ],
                     ),
                   ],
                 ),
@@ -109,6 +131,44 @@ class _BillViewState extends State<BillView> {
         },
       ),
     );
+  }
+
+  TextButton _getGetDeviceOrPrintButton(BillViewSuccess state) {
+    return TextButton(
+      onPressed: (state.enablePrint)
+          ? () {
+              context.read<BillViewCubit>().print();
+            }
+          : () => context.read<BillViewCubit>().getBluetoothdevices(),
+      child: Text(state.enablePrint ? 'PRINT' : 'GET DEVICES'),
+    );
+  }
+
+  List<DropdownMenuItem<BluetoothDevice>> _getDeviceItems(
+      List<BluetoothDevice> devices) {
+    List<DropdownMenuItem<BluetoothDevice>> _items = [];
+    if (devices.isEmpty) {
+      _items.add(
+        const DropdownMenuItem<BluetoothDevice>(
+          child: Text(
+            'None',
+          ),
+        ),
+      );
+    } else {
+      for (var element in devices) {
+        _items.add(
+          DropdownMenuItem<BluetoothDevice>(
+            child: Text(
+              '${element.name} : ${element.connected ? 'Connected' : 'Disconnected'}',
+              style: TextStyle(color: ColorManager.secondary),
+            ),
+            value: element,
+          ),
+        );
+      }
+    }
+    return _items;
   }
 
   Text _buildText({required String label}) {

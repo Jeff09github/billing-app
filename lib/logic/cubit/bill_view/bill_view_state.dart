@@ -14,25 +14,27 @@ class BillViewSuccess extends BillViewState {
   final Customer customer;
   final List<BluetoothDevice> devices;
   final BluetoothDevice? device;
-  final bool connected;
+  final bool enablePrint;
 
   const BillViewSuccess({
     required this.waterBill,
     required this.customer,
     required this.devices,
     required this.device,
-    required this.connected,
+    required this.enablePrint,
   });
 
   @override
-  List<Object?> get props => [waterBill, customer, devices, device, connected];
+  List<Object?> get props =>
+      [waterBill, customer, devices, device, enablePrint];
 }
 
 class BillViewFailure extends BillViewState {
   final WaterBill waterBill;
+  final String errorMsg;
 
-  const BillViewFailure({required this.waterBill});
+  const BillViewFailure({required this.waterBill, required this.errorMsg});
 
   @override
-  List<Object?> get props => [waterBill];
+  List<Object?> get props => [waterBill, errorMsg];
 }

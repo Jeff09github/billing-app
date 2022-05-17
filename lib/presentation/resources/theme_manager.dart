@@ -24,14 +24,17 @@ ThemeData getApplicationTheme() {
             fontSize: FontSizeManager.splashFontSize,
             color: ColorManager.secondary),
         headline3: getBoldStyle(
-            fontSize: FontSizeManager.s14,
-            color: ColorManager.secondary),
+            fontSize: FontSizeManager.s14, color: ColorManager.secondary),
+        headline4: getBoldStyle(
+            fontSize: FontSizeManager.s14, color: ColorManager.secondary),
         bodyText1: getRegularStyle(
             fontSize: FontSizeManager.s14, color: ColorManager.secondary),
         bodyText2: getRegularStyle(
             fontSize: FontSizeManager.s16, color: ColorManager.secondary),
         subtitle1: getRegularStyle(
             fontSize: FontSizeManager.s14, color: ColorManager.primary),
+        subtitle2: getRegularStyle(
+            fontSize: FontSizeManager.s14, color: ColorManager.secondary),
       ),
       //Appbar Theme
       appBarTheme: AppBarTheme(
